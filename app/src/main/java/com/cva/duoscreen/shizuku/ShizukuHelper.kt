@@ -85,7 +85,7 @@ object ShizukuHelper {
     }
 
     fun launchAppOnDisplay(packageName: String, displayId: Int, callback: ((String) -> Unit)? = null) {
-        executeShellAsync("am start --display $displayId $(cmd package resolve-activity --brief $packageName | tail -n 1)", callback)
+        executeShellAsync("am start --display $displayId --windowingMode 1 $(cmd package resolve-activity --brief $packageName | tail -n 1)", callback)
     }
 
     fun injectTap(displayId: Int, x: Float, y: Float) {

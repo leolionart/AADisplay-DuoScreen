@@ -204,9 +204,16 @@ class DuoAccessibilityService : AccessibilityService() {
         val alerts = mutableListOf<String>()
 
         for (t in texts) {
+            val lower = t.lowercase()
+            if (lower.contains("%") || lower.contains("pin") || lower.contains("sạc") ||
+                lower.contains("wifi") || lower.contains("bluetooth") || lower.contains("usb") ||
+                lower.contains("thông báo") || lower.contains("hệ thống")) {
+                continue
+            }
+
             val num = t.toIntOrNull()
             if (num != null) {
-                // If it's a standard speed limit number (e.g. 50, 60, 80, 100...)
+                // If it's a standard speed limit number (e.g. 40, 50, 60, 70, 80, 90, 100, 120...)
                 if (validLimits.contains(num)) {
                     detectedLimit = num
                 } else if (num in 0..199) {
@@ -225,7 +232,6 @@ class DuoAccessibilityService : AccessibilityService() {
             }
 
             // Check alert keywords
-            val lower = t.lowercase()
             if (lower.contains("camera") || lower.contains("phạt nguội") ||
                 lower.contains("dân cư") || lower.contains("giới hạn") ||
                 lower.contains("vượt") || lower.contains("tốc độ") ||
