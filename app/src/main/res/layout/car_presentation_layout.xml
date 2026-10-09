@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="#000000">
 
-    <!-- TOP PANEL: GOOGLE MAPS -->
+    <!-- TOP PANEL: GOOGLE MAPS VIRTUAL DISPLAY -->
     <FrameLayout
         android:id="@+id/carFrameTop"
         android:layout_width="match_parent"
@@ -20,13 +20,13 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <!-- DIVIDER -->
+    <!-- HORIZONTAL SEAM / DIVIDER -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="#00D2D3" />
 
-    <!-- BOTTOM ROW: VIETMAP LIVE & YT MUSIC -->
+    <!-- BOTTOM ROW: 2 WIDGETS (MODE LITE) OR 2 VIRTUAL DISPLAYS (MODE 3) -->
     <LinearLayout
         android:id="@+id/carLayoutBottomRow"
         android:layout_width="match_parent"
@@ -35,7 +35,7 @@
         android:orientation="horizontal"
         android:background="#10131A">
 
-        <!-- BOTTOM LEFT: VIETMAP LIVE -->
+        <!-- BOTTOM LEFT: SPEEDOMETER & VIETMAP ALERT (OR VIETMAP VIRTUAL DISPLAY) -->
         <FrameLayout
             android:id="@+id/carFrameBottomLeft"
             android:layout_width="0dp"
@@ -43,19 +43,118 @@
             android:layout_weight="45"
             android:background="#161922">
 
+            <!-- Virtual Display TextureView for Mode 3 -->
             <TextureView
                 android:id="@+id/carTvBottomLeft"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <!-- Native Speed & Alert Widget for Mode Lite -->
+            <LinearLayout
+                android:id="@+id/carWidgetSpeedContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@drawable/bg_cockpit_card"
+                android:padding="8dp"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <!-- GPS Speed -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/carTvSpeedVal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#FFFFFF"
+                            android:textSize="44sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="km/h (GPS)"
+                            android:textColor="#88C0D0"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Circular Speed Limit Sign -->
+                    <FrameLayout
+                        android:id="@+id/carLayoutSpeedLimitSign"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_speed_limit_sign">
+
+                        <TextView
+                            android:id="@+id/carTvSpeedLimitVal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="60"
+                            android:textColor="#000000"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- Vietmap Alert Banner -->
+                <LinearLayout
+                    android:id="@+id/carLayoutVietmapBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#2E3440"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛡️"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/carTvVietmapAlert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Vietmap: Đang theo dõi..."
+                        android:textColor="#D8DEE9"
+                        android:textSize="11sp"
+                        android:singleLine="true"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever" />
+                </LinearLayout>
+            </LinearLayout>
         </FrameLayout>
 
-        <!-- VERTICAL DIVIDER -->
+        <!-- VERTICAL SEAM / DIVIDER -->
         <FrameLayout
             android:layout_width="2dp"
             android:layout_height="match_parent"
             android:background="#00D2D3" />
 
-        <!-- BOTTOM RIGHT: YT MUSIC -->
+        <!-- BOTTOM RIGHT: MUSIC PLAYER WIDGET (OR YT MUSIC VIRTUAL DISPLAY) -->
         <FrameLayout
             android:id="@+id/carFrameBottomRight"
             android:layout_width="0dp"
@@ -63,10 +162,123 @@
             android:layout_weight="55"
             android:background="#161922">
 
+            <!-- Virtual Display TextureView for Mode 3 -->
             <TextureView
                 android:id="@+id/carTvBottomRight"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <!-- Native Media Player Controller for Mode Lite -->
+            <FrameLayout
+                android:id="@+id/carWidgetMusicContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_cockpit_card"
+                android:visibility="visible">
+
+                <!-- Album Art Background -->
+                <ImageView
+                    android:id="@+id/carIvAlbumBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_music_note" />
+
+                <!-- Scrim Overlay -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_album_scrim" />
+
+                <!-- Foreground Content -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/carTvMusicSource"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_source_pill"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="6dp"
+                            android:paddingTop="1dp"
+                            android:paddingBottom="1dp"
+                            android:text="🎵 Đang phát"
+                            android:textColor="#E0E6ED"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="2dp" />
+
+                        <TextView
+                            android:id="@+id/carTvMusicTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Chưa phát nhạc"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever" />
+
+                        <TextView
+                            android:id="@+id/carTvMusicArtist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Mở Spotify / YouTube Music"
+                            android:textColor="#D8DEE9"
+                            android:textSize="11sp"
+                            android:singleLine="true"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+
+                    <!-- Playback Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="2dp">
+
+                        <ImageButton
+                            android:id="@+id/carBtnMusicPrev"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_media_control_pill"
+                            android:src="@drawable/ic_skip_previous"
+                            android:contentDescription="Previous" />
+
+                        <ImageButton
+                            android:id="@+id/carBtnMusicPlayPause"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:layout_marginStart="14dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_media_play_pill"
+                            android:src="@drawable/ic_play_dark"
+                            android:contentDescription="Play/Pause" />
+
+                        <ImageButton
+                            android:id="@+id/carBtnMusicNext"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:background="@drawable/bg_media_control_pill"
+                            android:src="@drawable/ic_skip_next"
+                            android:contentDescription="Next" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>
