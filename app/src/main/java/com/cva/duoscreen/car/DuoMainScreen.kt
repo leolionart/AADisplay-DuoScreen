@@ -101,7 +101,6 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         DuoNotificationService.addVietmapListener(vietmapListener)
 
         render()
-        openGoogleMapsOnCar()
     }
 
     @Synchronized
@@ -161,8 +160,9 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         canvas.drawText(gpsText, w * 0.72f, headerTop + 25f, paint)
 
         // 3. Top Main Panel (Navigation / Map Card)
+        val isPortrait = h > w
         val topCardTop = headerTop + headerH + 8f
-        val topCardBottom = h * 0.54f
+        val topCardBottom = if (isPortrait) h * 0.62f else h * 0.54f
         val topRect = RectF(w * 0.02f, topCardTop, w * 0.98f, topCardBottom)
 
         paint.color = Color.parseColor("#181D28")
@@ -220,13 +220,13 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         paint.color = Color.WHITE
         canvas.drawText("⚡  MỞ VIETMAP LIVE", w * 0.32f, btn2Top + 38f, paint)
         // 4. Horizontal Separator
-        val divY = h * 0.56f
+        val divY = if (isPortrait) h * 0.635f else h * 0.56f
         paint.color = Color.parseColor("#00D2D3")
         paint.strokeWidth = 3f
         canvas.drawLine(w * 0.02f, divY, w * 0.98f, divY, paint)
 
         // 5. Bottom Left Card: Speedometer & Vietmap Speed Limit
-        val bCardTop = h * 0.58f
+        val bCardTop = if (isPortrait) h * 0.65f else h * 0.58f
         val bCardBottom = h - 14f
         val leftCardRect = RectF(w * 0.02f, bCardTop, w * 0.49f, bCardBottom)
 
@@ -372,7 +372,8 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         }
 
         // Check Bottom Right Media Player Controls
-        val bCardTop = h * 0.58f
+        val isPortrait = h > w
+        val bCardTop = if (isPortrait) h * 0.65f else h * 0.58f
         val mBtnY = bCardTop + 125f
         val mBtnH = 46f
 
@@ -395,7 +396,7 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         }
 
         // Check Bottom Left Speed Card (Tap to launch Vietmap)
-        if (x in (w * 0.04f)..(w * 0.48f) && y in (h * 0.58f)..(h - 14f)) {
+        if (x in (w * 0.04f)..(w * 0.48f) && y in bCardTop..(h - 14f)) {
             ShizukuHelper.launchAppOnDisplay("vn.vietmap.live", 0)
             return
         }

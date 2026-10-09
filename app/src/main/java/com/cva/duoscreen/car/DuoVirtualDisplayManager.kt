@@ -38,6 +38,17 @@ class DuoVirtualDisplayManager(private val context: Context) {
     ) {
         release()
 
+        val w1 = if (topW > 0) topW else 1080
+        val h1 = if (topH > 0) topH else 720
+        val w2 = if (bLeftW > 0) bLeftW else 540
+        val h2 = if (bLeftH > 0) bLeftH else 720
+        val w3 = if (bRightW > 0) bRightW else 540
+        val h3 = if (bRightH > 0) bRightH else 720
+
+        topTexture.setDefaultBufferSize(w1, h1)
+        bottomLeftTexture.setDefaultBufferSize(w2, h2)
+        bottomRightTexture.setDefaultBufferSize(w3, h3)
+
         topSurface = Surface(topTexture)
         bottomLeftSurface = Surface(bottomLeftTexture)
         bottomRightSurface = Surface(bottomRightTexture)
@@ -47,8 +58,8 @@ class DuoVirtualDisplayManager(private val context: Context) {
             // 1. Top Wide Panel (Google Maps: 220 DPI for broad view)
             topVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-Top",
-                if (topW > 0) topW else 1080,
-                if (topH > 0) topH else 720,
+                w1,
+                h1,
                 220,
                 topSurface,
                 flags
@@ -58,8 +69,8 @@ class DuoVirtualDisplayManager(private val context: Context) {
             // 2. Bottom Left Panel (Vietmap Live Speed Warning Widget: 140 DPI to make text, signs and icons big & readable!)
             bottomLeftVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-BottomLeft",
-                if (bLeftW > 0) bLeftW else 540,
-                if (bLeftH > 0) bLeftH else 720,
+                w2,
+                h2,
                 140, // Low DPI = UI elements, speed limit circles and warning text scale up dramatically!
                 bottomLeftSurface,
                 flags
@@ -69,8 +80,8 @@ class DuoVirtualDisplayManager(private val context: Context) {
             // 3. Bottom Right Panel (YouTube Music player: 160 DPI)
             bottomRightVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-BottomRight",
-                if (bRightW > 0) bRightW else 540,
-                if (bRightH > 0) bRightH else 720,
+                w3,
+                h3,
                 160,
                 bottomRightSurface,
                 flags
@@ -89,18 +100,31 @@ class DuoVirtualDisplayManager(private val context: Context) {
         defaultDpi: Int = 220
     ) {
         release()
+        val w = if (topW > 0) topW else 1080
+        val h = if (topH > 0) topH else 720
+        topTexture.setDefaultBufferSize(w, h)
         topSurface = Surface(topTexture)
         try {
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
             topVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-Top",
-                if (topW > 0) topW else 1080,
-                if (topH > 0) topH else 720,
+                w,
+                h,
                 defaultDpi,
                 topSurface,
                 flags
             )
             topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun resizeTopDisplay(topTexture: SurfaceTexture?, width: Int, height: Int, dpi: Int = 220) {
+        if (width <= 0 || height <= 0) return
+        try {
+            topTexture?.setDefaultBufferSize(width, height)
+            topVirtualDisplay?.resize(width, height, dpi)
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -393,9 +393,19 @@ class MainActivity : AppCompatActivity() {
         tvTopDisplay.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 topTexture = surface
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                }
                 tryAutoStartDisplays()
             }
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                    if (isDisplaysRunning) {
+                        displayManager.resizeTopDisplay(surface, width, height)
+                    }
+                }
+            }
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean = true
             override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
         }
@@ -403,9 +413,16 @@ class MainActivity : AppCompatActivity() {
         tvBottomLeftDisplay.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 bottomLeftTexture = surface
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                }
                 tryAutoStartDisplays()
             }
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                }
+            }
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean = true
             override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
         }
@@ -413,9 +430,16 @@ class MainActivity : AppCompatActivity() {
         tvBottomRightDisplay.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 bottomRightTexture = surface
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                }
                 tryAutoStartDisplays()
             }
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                if (width > 0 && height > 0) {
+                    surface.setDefaultBufferSize(width, height)
+                }
+            }
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean = true
             override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
         }
@@ -685,6 +709,14 @@ class MainActivity : AppCompatActivity() {
                         .putFloat("weight_top", topParams.weight)
                         .putFloat("weight_bottom", bottomParams.weight)
                         .apply()
+                    tvTopDisplay.post {
+                        val tw = tvTopDisplay.width
+                        val th = tvTopDisplay.height
+                        if (tw > 0 && th > 0 && isDisplaysRunning) {
+                            topTexture?.setDefaultBufferSize(tw, th)
+                            displayManager.resizeTopDisplay(topTexture, tw, th)
+                        }
+                    }
                     true
                 }
                 else -> false
@@ -739,8 +771,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restoreProportions() {
-        val topW = prefs.getFloat("weight_top", 58f)
-        val bottomW = prefs.getFloat("weight_bottom", 42f)
+        val topW = prefs.getFloat("weight_top", 65f)
+        val bottomW = prefs.getFloat("weight_bottom", 35f)
         val leftW = prefs.getFloat("weight_bottom_left", 40f)
         val rightW = prefs.getFloat("weight_bottom_right", 60f)
 

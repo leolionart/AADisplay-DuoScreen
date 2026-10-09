@@ -17,7 +17,7 @@
             android:id="@+id/frameTop"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="55"
+            android:layout_weight="65"
             android:background="#1B1E26">
 
             <TextureView
@@ -106,7 +106,7 @@
             android:id="@+id/layoutBottomRow"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="45"
+            android:layout_weight="35"
             android:orientation="horizontal">
 
             <!-- BOTTOM LEFT: VIETMAP SPEED WIDGET -->
