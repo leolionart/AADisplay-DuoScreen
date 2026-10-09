@@ -1,8 +1,10 @@
 package com.cva.duoscreen.car
 
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.net.Uri
 import android.graphics.Rect
 import android.graphics.RectF
 import android.view.Surface
@@ -61,7 +63,7 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
                 Action.Builder()
                     .setTitle("Google Maps")
                     .setOnClickListener {
-                        ShizukuHelper.launchAppOnDisplay("com.google.android.apps.maps", 0)
+                        openGoogleMapsOnCar()
                     }
                     .build()
             )
@@ -99,6 +101,7 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         DuoNotificationService.addVietmapListener(vietmapListener)
 
         render()
+        openGoogleMapsOnCar()
     }
 
     @Synchronized
@@ -134,10 +137,10 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // 2. Header Bar
-        val headerTop = 10f
-        val headerH = 40f
+        val headerTop = 8f
+        val headerH = 38f
         paint.color = Color.parseColor("#1D2433")
-        val badgeRect = RectF(w * 0.04f, headerTop, w * 0.96f, headerTop + headerH)
+        val badgeRect = RectF(w * 0.02f, headerTop, w * 0.98f, headerTop + headerH)
         canvas.drawRoundRect(badgeRect, 18f, 18f, paint)
 
         paint.style = Paint.Style.STROKE
@@ -149,18 +152,18 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         paint.color = Color.parseColor("#00D2D3")
         paint.textSize = 17f
         paint.isFakeBoldText = true
-        canvas.drawText("🚗 DUOSCREEN AA • SMART COCKPIT", w * 0.07f, headerTop + 27f, paint)
+        canvas.drawText("🚗 DUOSCREEN AA • TOÀN MÀN HÌNH DỌC", w * 0.05f, headerTop + 26f, paint)
 
         paint.color = Color.parseColor("#4CAF50")
         paint.textSize = 13f
         paint.isFakeBoldText = false
         val gpsText = if (currentSpeedState.hasGpsFix) "GPS: Sẵn sàng" else "GPS: Đang dò..."
-        canvas.drawText(gpsText, w * 0.72f, headerTop + 26f, paint)
+        canvas.drawText(gpsText, w * 0.72f, headerTop + 25f, paint)
 
         // 3. Top Main Panel (Navigation / Map Card)
-        val topCardTop = headerTop + headerH + 10f
+        val topCardTop = headerTop + headerH + 8f
         val topCardBottom = h * 0.54f
-        val topRect = RectF(w * 0.04f, topCardTop, w * 0.96f, topCardBottom)
+        val topRect = RectF(w * 0.02f, topCardTop, w * 0.98f, topCardBottom)
 
         paint.color = Color.parseColor("#181D28")
         canvas.drawRoundRect(topRect, 20f, 20f, paint)
@@ -174,21 +177,21 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         // Header inside Top Card
         paint.color = Color.WHITE
         paint.textSize = 34f
-        canvas.drawText("🗺️", w * 0.08f, topCardTop + 45f, paint)
+        canvas.drawText("🗺️", w * 0.05f, topCardTop + 45f, paint)
 
         paint.textSize = 21f
         paint.isFakeBoldText = true
-        canvas.drawText("BẢN ĐỒ DẪN ĐƯỜNG", w * 0.18f, topCardTop + 40f, paint)
+        canvas.drawText("BẢN ĐỒ DẪN ĐƯỜNG", w * 0.15f, topCardTop + 40f, paint)
 
         paint.color = Color.parseColor("#88C0D0")
         paint.textSize = 13f
         paint.isFakeBoldText = false
-        canvas.drawText("Chạm để mở Google Maps / Vietmap Live:", w * 0.18f, topCardTop + 68f, paint)
+        canvas.drawText("Chạm để mở Google Maps / Vietmap Live:", w * 0.15f, topCardTop + 68f, paint)
 
         // Quick Launch Buttons inside Top Card
         val btnH = 60f
         val btn1Top = topCardTop + 85f
-        val btn1Rect = RectF(w * 0.08f, btn1Top, w * 0.92f, btn1Top + btnH)
+        val btn1Rect = RectF(w * 0.05f, btn1Top, w * 0.95f, btn1Top + btnH)
         paint.color = Color.parseColor("#00796B")
         canvas.drawRoundRect(btn1Rect, 14f, 14f, paint)
 
@@ -201,10 +204,10 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         paint.color = Color.WHITE
         paint.textSize = 19f
         paint.isFakeBoldText = true
-        canvas.drawText("🗺️  MỞ GOOGLE MAPS", w * 0.28f, btn1Top + 38f, paint)
+        canvas.drawText("🗺️  MỞ GOOGLE MAPS TOÀN MÀN HÌNH", w * 0.18f, btn1Top + 38f, paint)
 
         val btn2Top = btn1Top + btnH + 14f
-        val btn2Rect = RectF(w * 0.08f, btn2Top, w * 0.92f, btn2Top + btnH)
+        val btn2Rect = RectF(w * 0.05f, btn2Top, w * 0.95f, btn2Top + btnH)
         paint.color = Color.parseColor("#E65100")
         canvas.drawRoundRect(btn2Rect, 14f, 14f, paint)
 
@@ -215,18 +218,17 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         paint.style = Paint.Style.FILL
 
         paint.color = Color.WHITE
-        canvas.drawText("⚡  MỞ VIETMAP LIVE", w * 0.30f, btn2Top + 38f, paint)
-
+        canvas.drawText("⚡  MỞ VIETMAP LIVE", w * 0.32f, btn2Top + 38f, paint)
         // 4. Horizontal Separator
         val divY = h * 0.56f
         paint.color = Color.parseColor("#00D2D3")
         paint.strokeWidth = 3f
-        canvas.drawLine(w * 0.05f, divY, w * 0.95f, divY, paint)
+        canvas.drawLine(w * 0.02f, divY, w * 0.98f, divY, paint)
 
         // 5. Bottom Left Card: Speedometer & Vietmap Speed Limit
         val bCardTop = h * 0.58f
         val bCardBottom = h - 14f
-        val leftCardRect = RectF(w * 0.04f, bCardTop, w * 0.48f, bCardBottom)
+        val leftCardRect = RectF(w * 0.02f, bCardTop, w * 0.49f, bCardBottom)
 
         paint.color = Color.parseColor("#181D28")
         canvas.drawRoundRect(leftCardRect, 18f, 18f, paint)
@@ -275,8 +277,7 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         canvas.drawText(alertMsg, w * 0.07f, bCardBottom - 18f, paint)
 
         // 6. Bottom Right Card: Music Player
-        val rightCardRect = RectF(w * 0.52f, bCardTop, w * 0.96f, bCardBottom)
-
+        val rightCardRect = RectF(w * 0.51f, bCardTop, w * 0.98f, bCardBottom)
         paint.color = Color.parseColor("#181D28")
         canvas.drawRoundRect(rightCardRect, 18f, 18f, paint)
 
@@ -333,6 +334,20 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         canvas.drawText("⏭", w * 0.86f, mBtnY + 31f, paint)
     }
 
+    private fun openGoogleMapsOnCar() {
+        try {
+            val navIntent = Intent(CarContext.ACTION_NAVIGATE)
+            carContext.startCarApp(navIntent)
+        } catch (e: Exception) {
+            try {
+                val geoIntent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0"))
+                carContext.startCarApp(geoIntent)
+            } catch (e2: Exception) {
+                ShizukuHelper.executeShell("am start -a android.intent.action.VIEW -d geo:0,0")
+            }
+        }
+    }
+
     override fun onClick(x: Float, y: Float) {
         val w = surfaceWidth.toFloat()
         val h = surfaceHeight.toFloat()
@@ -345,9 +360,9 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         val btn1Top = topCardTop + 85f
         val btn2Top = btn1Top + btnH + 14f
 
-        if (x in (w * 0.08f)..(w * 0.92f)) {
+        if (x in (w * 0.05f)..(w * 0.95f)) {
             if (y in btn1Top..(btn1Top + btnH)) {
-                ShizukuHelper.launchAppOnDisplay("com.google.android.apps.maps", 0)
+                openGoogleMapsOnCar()
                 return
             }
             if (y in btn2Top..(btn2Top + btnH)) {
