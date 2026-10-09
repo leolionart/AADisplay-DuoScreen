@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityWindowInfo
 import com.cva.duoscreen.shizuku.ShizukuHelper
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.regex.Pattern
@@ -137,20 +138,26 @@ class DuoAccessibilityService : AccessibilityService() {
         val collectedNodesInfo = mutableListOf<String>()
 
         try {
-            // Check all interactive windows (including TYPE_APPLICATION_OVERLAY floating bubbles)
             val windowList = windows
             if (!windowList.isNullOrEmpty()) {
                 for (window in windowList) {
-                    val root = window.root ?: continue
-                    val pkg = root.packageName?.toString() ?: ""
+                    val root = window.root
+                    val pkg = root?.packageName?.toString() ?: ""
+
+                    // Skip SystemUI and our own app
+                    if (pkg == "com.android.systemui" || pkg == "com.cva.duoscreen") continue
+
                     if (pkg.contains("vietmap", ignoreCase = true)) {
+                        Log.d(TAG, "FOUND VIETMAP WINDOW! ID=${window.id}, type=${window.type}, layer=${window.layer}")
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
+                        Log.d(TAG, "Vietmap nodes extracted: $collectedNodesInfo")
                     }
                 }
             } else {
                 rootInActiveWindow?.let { root ->
                     val pkg = root.packageName?.toString() ?: ""
                     if (pkg.contains("vietmap", ignoreCase = true)) {
+                        Log.d(TAG, "FOUND VIETMAP in rootInActiveWindow!")
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
                     }
                 }
@@ -160,7 +167,7 @@ class DuoAccessibilityService : AccessibilityService() {
         }
 
         if (collectedTexts.isNotEmpty()) {
-            Log.d(TAG, "Vietmap nodes collected: $collectedTexts")
+            Log.d(TAG, "Nodes collected from overlays: $collectedTexts")
             processParsedTexts(collectedTexts)
         }
     }
@@ -175,14 +182,15 @@ class DuoAccessibilityService : AccessibilityService() {
         val text = node.text?.toString()?.trim()
         val desc = node.contentDescription?.toString()?.trim()
         val viewId = node.viewIdResourceName ?: "no_id"
+        val cls = node.className ?: "null"
+
+        outDebugList.add("[$cls, id=$viewId, childCount=${node.childCount}, text='$text', desc='$desc']")
 
         if (!text.isNullOrEmpty()) {
             outTexts.add(text)
-            outDebugList.add("[$viewId] text: $text")
         }
         if (!desc.isNullOrEmpty() && desc != text) {
             outTexts.add(desc)
-            outDebugList.add("[$viewId] desc: $desc")
         }
 
         for (i in 0 until node.childCount) {
@@ -262,14 +270,13 @@ class DuoAccessibilityService : AccessibilityService() {
             if (!windowList.isNullOrEmpty()) {
                 for (w in windowList) {
                     val root = w.root ?: continue
-                    if (root.packageName?.toString() == VIETMAP_PKG) {
-                        debugList.add("--- Cửa sổ Vietmap [ID: ${w.id}, Type: ${w.type}] ---")
-                        extractNodeTexts(root, texts, debugList)
-                    }
-                }
-            } else {
-                rootInActiveWindow?.let { root ->
-                    if (root.packageName?.toString() == VIETMAP_PKG) {
+                    val pkg = root.packageName?.toString() ?: ""
+                    if (pkg == "com.cva.duoscreen") continue
+
+                    val isCandidate = pkg.contains("vietmap", ignoreCase = true) ||
+                            w.type == AccessibilityWindowInfo.TYPE_SYSTEM
+                    if (isCandidate) {
+                        debugList.add("--- Cửa sổ [ID: ${w.id}, Type: ${w.type}, Pkg: $pkg] ---")
                         extractNodeTexts(root, texts, debugList)
                     }
                 }

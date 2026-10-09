@@ -789,7 +789,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    dividerHorizontal.setBackgroundColor(Color.parseColor("#2E3440"))
+                    dividerHorizontal.setBackgroundColor(Color.parseColor("#0A0C10"))
                     val topParams = frameTop.layoutParams as LinearLayout.LayoutParams
                     val bottomParams = layoutBottomRow.layoutParams as LinearLayout.LayoutParams
                     prefs.edit()
@@ -843,7 +843,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    dividerVertical.setBackgroundColor(Color.parseColor("#2E3440"))
+                    dividerVertical.setBackgroundColor(Color.parseColor("#0A0C10"))
                     val leftParams = frameBottomLeft.layoutParams as LinearLayout.LayoutParams
                     val rightParams = frameBottomRight.layoutParams as LinearLayout.LayoutParams
                     prefs.edit()

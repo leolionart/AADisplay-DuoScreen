@@ -87,19 +87,12 @@
             </LinearLayout>
         </FrameLayout>
 
-        <!-- HORIZONTAL DIVIDER BAR (Kéo lên/xuống để đổi chiều cao Màn Trên & Màn Dưới) -->
+        <!-- ULTRA-THIN HORIZONTAL SEAM (Kéo để điều chỉnh chiều cao) -->
         <FrameLayout
             android:id="@+id/dividerHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="18dp"
-            android:background="#2E3440">
-
-            <View
-                android:layout_width="60dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center"
-                android:background="#88C0D0" />
-        </FrameLayout>
+            android:layout_height="4dp"
+            android:background="#0A0C10" />
 
         <!-- BOTTOM PANELS (LEFT SPEED WIDGET & RIGHT MUSIC) -->
         <LinearLayout
@@ -269,19 +262,12 @@
                 </LinearLayout>
             </FrameLayout>
 
-            <!-- VERTICAL DIVIDER BAR (Kéo trái/phải để đổi chiều rộng Trái & Phải) -->
+            <!-- ULTRA-THIN VERTICAL SEAM (Kéo để điều chỉnh chiều rộng) -->
             <FrameLayout
                 android:id="@+id/dividerVertical"
-                android:layout_width="18dp"
+                android:layout_width="4dp"
                 android:layout_height="match_parent"
-                android:background="#2E3440">
-
-                <View
-                    android:layout_width="4dp"
-                    android:layout_height="60dp"
-                    android:layout_gravity="center"
-                    android:background="#88C0D0" />
-            </FrameLayout>
+                android:background="#0A0C10" />
 
             <!-- BOTTOM RIGHT: MUSIC PLAYER / APP -->
             <FrameLayout
