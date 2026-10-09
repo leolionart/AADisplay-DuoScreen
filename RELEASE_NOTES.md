@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:28 +07
+
+Generated before push from commits:
+
+- `5c96b8b` feat(car): open Google Maps full-screen via CarContext navigation intent
+
 ## Unreleased - 2026-10-09 21:19 +07
 
 Generated before push from commits:
