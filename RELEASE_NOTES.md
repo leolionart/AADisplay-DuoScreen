@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 22:16 +07
+
+Generated before push from commits:
+
+- `00ef3d6` style: switch to clean square cockpit widgets with album art background and fix button clipping
+
 ## Unreleased - 2026-10-09 22:00 +07
 
 Generated before push from commits:
