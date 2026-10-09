@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:19 +07
+
+Generated before push from commits:
+
+- `ce38ecc` fix(build): use AGP built-in debug signingConfig for release builds
+
 ## Unreleased - 2026-10-09 21:16 +07
 
 Generated before push from commits:
