@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:15 +07
+
+Generated before push from commits:
+
+- `ed604a5` ci: auto build APK and update GitHub Release on main push/merge
+
 ## Unreleased - 2026-10-09 21:14 +07
 
 Generated before push from commits:
