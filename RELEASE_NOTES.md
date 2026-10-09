@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:14 +07
+
+Generated before push from commits:
+
+- `ab74c33` ci: add GitHub Actions workflow to auto build and release APK
+
 ## [v1.0.0] - 2026-10-09
 
 ### Initial Release
