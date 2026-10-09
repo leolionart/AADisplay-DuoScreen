@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "build": {
+      "command": "export JAVA_HOME=/opt/homebrew/opt/openjdk@17 && export ANDROID_HOME=$HOME/android-sdk && ./gradlew assembleDebug"
+    },
+    "clean": {
+      "command": "export JAVA_HOME=/opt/homebrew/opt/openjdk@17 && export ANDROID_HOME=$HOME/android-sdk && ./gradlew clean"
+    }
+  }
+}
