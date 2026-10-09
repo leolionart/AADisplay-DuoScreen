@@ -170,14 +170,14 @@
                         android:textSize="10sp" />
                 </LinearLayout>
 
-                <!-- NATIVE WIDGET (MODE LITE): SPEEDOMETER & VIETMAP ALERT -->
+                <!-- NATIVE WIDGET (MODE LITE): SPEEDOMETER & VIETMAP ALERT (SQUARE STYLE) -->
                 <LinearLayout
                     android:id="@+id/widgetSpeedContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:background="@drawable/bg_cockpit_card"
-                    android:padding="8dp"
+                    android:padding="10dp"
                     android:elevation="6dp"
                     android:visibility="gone">
 
@@ -201,8 +201,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="#ECEFF4"
-                                android:textSize="40sp"
+                                android:textColor="#FFFFFF"
+                                android:textSize="48sp"
                                 android:textStyle="bold"
                                 android:includeFontPadding="false" />
 
@@ -211,15 +211,15 @@
                                 android:layout_height="wrap_content"
                                 android:text="km/h (GPS)"
                                 android:textColor="#88C0D0"
-                                android:textSize="11sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <!-- Circular Speed Limit Sign -->
+                        <!-- Authentic Circular Speed Limit Sign (Red ring, pure white inner, bold black text) -->
                         <FrameLayout
                             android:id="@+id/layoutSpeedLimitSign"
-                            android:layout_width="52dp"
-                            android:layout_height="52dp"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
                             android:layout_marginEnd="6dp"
                             android:background="@drawable/bg_speed_limit_sign">
 
@@ -229,13 +229,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="--"
-                                android:textColor="#1A1D26"
-                                android:textSize="17sp"
+                                android:textColor="#000000"
+                                android:textSize="20sp"
                                 android:textStyle="bold" />
                         </FrameLayout>
                     </LinearLayout>
 
-                    <!-- Vietmap Alert / Status Banner -->
+                    <!-- Vietmap Alert / Status Banner (Full width, zero text clipping) -->
                     <LinearLayout
                         android:id="@+id/layoutVietmapBanner"
                         android:layout_width="match_parent"
@@ -243,8 +243,8 @@
                         android:background="#2E3440"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
@@ -253,30 +253,18 @@
                             android:layout_height="wrap_content"
                             android:text="🛡️"
                             android:textSize="12sp"
-                            android:layout_marginEnd="4dp" />
+                            android:layout_marginEnd="6dp" />
 
                         <TextView
                             android:id="@+id/tvVietmapAlert"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="Vietmap: Đang theo dõi..."
                             android:textColor="#D8DEE9"
                             android:textSize="11sp"
                             android:singleLine="true"
                             android:ellipsize="marquee"
                             android:marqueeRepeatLimit="marquee_forever" />
-
-                        <TextView
-                            android:id="@+id/btnQuickVietmap"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Mở Vietmap"
-                            android:textColor="#88C0D0"
-                            android:textSize="10sp"
-                            android:textStyle="bold"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="2dp" />
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -357,66 +345,83 @@
                 </LinearLayout>
 
                 <!-- NATIVE WIDGET (MODE LITE): MUSIC PLAYER CONTROLLER -->
-                <LinearLayout
+                <!-- NATIVE WIDGET (MODE LITE): ANDROID AUTO MATERIAL YOU MEDIA CARD (ALBUM ART BACKGROUND) -->
+                <FrameLayout
                     android:id="@+id/widgetMusicContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
                     android:background="@drawable/bg_cockpit_card"
-                    android:padding="8dp"
                     android:elevation="6dp"
                     android:visibility="gone">
 
+                    <!-- 1. FULL CARD BACKGROUND: ALBUM ART -->
+                    <ImageView
+                        android:id="@+id/ivAlbumBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_music_note" />
+
+                    <!-- 2. DARK GRADIENT SCRIM OVERLAY (FOR HIGH CONTRAST & MATERIAL LOOK) -->
+                    <View
+                        android:id="@+id/viewAlbumScrim"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_album_scrim" />
+
+                    <!-- 3. FOREGROUND CONTENT -->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp">
 
-                        <!-- Album Art -->
-                        <FrameLayout
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginEnd="10dp"
-                            android:background="#2E3440">
-
-                            <ImageView
-                                android:id="@+id/ivMusicArt"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/ic_music_note" />
-                        </FrameLayout>
-
-                        <!-- Track Info -->
+                        <!-- Top: Source Badge & Track Info -->
                         <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
                             android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:gravity="center_vertical">
 
+                            <!-- Source App Pill Badge (e.g. 🎵 YouTube Music / Spotify) -->
                             <TextView
-                                android:id="@+id/tvMusicTitle"
+                                android:id="@+id/tvMusicSource"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:background="@drawable/bg_source_pill"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingBottom="2dp"
+                                android:text="🎵 Đang phát"
+                                android:textColor="#E0E6ED"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="4dp" />
+
+                            <!-- Song Title -->
+                            <TextView
+                                android:id="@+id/tvMusicTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 android:text="Chưa phát nhạc"
-                                android:textColor="#ECEFF4"
-                                android:textSize="13sp"
+                                android:textColor="#FFFFFF"
+                                android:textSize="15sp"
                                 android:textStyle="bold"
                                 android:singleLine="true"
                                 android:ellipsize="marquee"
                                 android:marqueeRepeatLimit="marquee_forever" />
 
+                            <!-- Artist Name -->
                             <TextView
                                 android:id="@+id/tvMusicArtist"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Mở Spotify / YouTube Music"
-                                android:textColor="#88C0D0"
-                                android:textSize="11sp"
+                                android:textColor="#D8DEE9"
+                                android:textSize="12sp"
                                 android:singleLine="true"
                                 android:ellipsize="end" />
 
@@ -433,43 +438,46 @@
                                 android:paddingEnd="8dp"
                                 android:visibility="gone" />
                         </LinearLayout>
+
+                        <!-- Bottom: Android Auto / Coolwalk Style Controls -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp">
+
+                            <!-- Previous Button -->
+                            <ImageButton
+                                android:id="@+id/btnMusicPrev"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_media_control_pill"
+                                android:src="@drawable/ic_skip_previous"
+                                android:contentDescription="Previous Track" />
+
+                            <!-- Play / Pause Button (White filled Material circle) -->
+                            <ImageButton
+                                android:id="@+id/btnMusicPlayPause"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_marginStart="18dp"
+                                android:layout_marginEnd="18dp"
+                                android:background="@drawable/bg_media_play_pill"
+                                android:src="@drawable/ic_play_dark"
+                                android:contentDescription="Play/Pause" />
+
+                            <!-- Next Button -->
+                            <ImageButton
+                                android:id="@+id/btnMusicNext"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:background="@drawable/bg_media_control_pill"
+                                android:src="@drawable/ic_skip_next"
+                                android:contentDescription="Next Track" />
+                        </LinearLayout>
                     </LinearLayout>
-
-                    <!-- Playback Controls -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center"
-                        android:layout_marginTop="4dp">
-
-                        <ImageButton
-                            android:id="@+id/btnMusicPrev"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_media_control_btn"
-                            android:src="@drawable/ic_skip_previous"
-                            android:contentDescription="Previous Track" />
-
-                        <ImageButton
-                            android:id="@+id/btnMusicPlayPause"
-                            android:layout_width="46dp"
-                            android:layout_height="46dp"
-                            android:layout_marginStart="14dp"
-                            android:layout_marginEnd="14dp"
-                            android:background="@drawable/bg_media_play_btn"
-                            android:src="@drawable/ic_play"
-                            android:contentDescription="Play/Pause" />
-
-                        <ImageButton
-                            android:id="@+id/btnMusicNext"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:background="@drawable/bg_media_control_btn"
-                            android:src="@drawable/ic_skip_next"
-                            android:contentDescription="Next Track" />
-                    </LinearLayout>
-                </LinearLayout>
+                </FrameLayout>
             </FrameLayout>
 
         </LinearLayout>
@@ -524,16 +532,17 @@
     <!-- 2. FLOATING BUBBLE / MENU TRIGGER -->
     <TextView
         android:id="@+id/btnFloatingTrigger"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:background="#66000000"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/bg_media_control_pill"
         android:text="⚙"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:textColor="#FFFFFF"
         android:gravity="center"
-        android:elevation="10dp" />
+        android:elevation="14dp" />
 
     <!-- 3. SLIDE-OUT / POPUP CONTROL DRAWER OVERLAY -->
     <LinearLayout
@@ -604,9 +613,11 @@
                 <Button
                     android:id="@+id/btnModeLite"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="46dp"
                     android:layout_weight="1"
                     android:background="#00796B"
+                    android:padding="8dp"
                     android:text="⚡ Mode Nhẹ (Map+Widget)"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -616,9 +627,11 @@
                 <Button
                     android:id="@+id/btnMode3Panel"
                     android:layout_width="0dp"
-                    android:layout_height="42dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="46dp"
                     android:layout_weight="1"
                     android:background="#424242"
+                    android:padding="8dp"
                     android:text="🚀 Mode 3: Đa nhiệm 3 App"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -661,9 +674,11 @@
                 <Button
                     android:id="@+id/btnEnableAccessibilityShizuku"
                     android:layout_width="0dp"
-                    android:layout_height="38dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="44dp"
                     android:layout_weight="1"
                     android:background="#00796B"
+                    android:padding="8dp"
                     android:text="⚡ Bật quyền 1-chạm (Shizuku)"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"
@@ -673,9 +688,11 @@
                 <Button
                     android:id="@+id/btnDumpVietmapTree"
                     android:layout_width="0dp"
-                    android:layout_height="38dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="44dp"
                     android:layout_weight="1"
                     android:background="#4C566A"
+                    android:padding="8dp"
                     android:text="🔍 Soi Bong bóng Vietmap"
                     android:textColor="#ECEFF4"
                     android:textSize="11sp" />
@@ -717,9 +734,11 @@
                 <Button
                     android:id="@+id/btnMenuStartDisplays"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="46dp"
                     android:layout_weight="1"
                     android:background="#00796B"
+                    android:padding="8dp"
                     android:text="🚀 Khởi chạy ngay"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"
@@ -729,9 +748,11 @@
                 <Button
                     android:id="@+id/btnMenuStopDisplays"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="46dp"
                     android:layout_weight="1"
                     android:background="#B71C1C"
+                    android:padding="8dp"
                     android:text="⏹ Dừng hiển thị"
                     android:textColor="#FFFFFF"
                     android:textSize="12sp"

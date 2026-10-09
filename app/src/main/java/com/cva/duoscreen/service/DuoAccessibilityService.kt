@@ -92,17 +92,27 @@ class DuoAccessibilityService : AccessibilityService() {
     private val speedRegex = Pattern.compile("(?i)(?:giới hạn|tốc độ|limit)?\\s*(\\d{2,3})\\s*(?:km/?h)?")
     private val validLimits = setOf(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
 
+    private val periodicRunnable = object : Runnable {
+        override fun run() {
+            parseAllInteractiveWindows()
+            mainHandler.postDelayed(this, 1000L)
+        }
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
         Log.i(TAG, "DuoAccessibilityService connected and ready to parse Vietmap Live!")
 
         serviceInfo = serviceInfo?.apply {
+            packageNames = null
             flags = flags or
                     AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
                     AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS or
                     AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
         }
+
+        mainHandler.post(periodicRunnable)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -119,9 +129,9 @@ class DuoAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        mainHandler.removeCallbacks(periodicRunnable)
         instance = null
     }
-
     fun parseAllInteractiveWindows() {
         val collectedTexts = mutableListOf<String>()
         val collectedNodesInfo = mutableListOf<String>()
@@ -133,13 +143,14 @@ class DuoAccessibilityService : AccessibilityService() {
                 for (window in windowList) {
                     val root = window.root ?: continue
                     val pkg = root.packageName?.toString() ?: ""
-                    if (pkg == VIETMAP_PKG) {
+                    if (pkg.contains("vietmap", ignoreCase = true)) {
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
                     }
                 }
             } else {
                 rootInActiveWindow?.let { root ->
-                    if (root.packageName?.toString() == VIETMAP_PKG) {
+                    val pkg = root.packageName?.toString() ?: ""
+                    if (pkg.contains("vietmap", ignoreCase = true)) {
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
                     }
                 }
@@ -149,6 +160,7 @@ class DuoAccessibilityService : AccessibilityService() {
         }
 
         if (collectedTexts.isNotEmpty()) {
+            Log.d(TAG, "Vietmap nodes collected: $collectedTexts")
             processParsedTexts(collectedTexts)
         }
     }

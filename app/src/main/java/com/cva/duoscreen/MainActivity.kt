@@ -107,11 +107,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSpeedLimitVal: TextView
     private lateinit var layoutSpeedLimitSign: FrameLayout
     private lateinit var tvVietmapAlert: TextView
-    private lateinit var btnQuickVietmap: TextView
 
-    // Mode Lite Native Widgets: Media Player Controller
-    private lateinit var widgetMusicContainer: LinearLayout
-    private lateinit var ivMusicArt: ImageView
+    // Mode Lite Native Widgets: Media Player Controller (Material You Style)
+    private lateinit var widgetMusicContainer: View
+    private lateinit var ivAlbumBg: ImageView
+    private lateinit var tvMusicSource: TextView
     private lateinit var tvMusicTitle: TextView
     private lateinit var tvMusicArtist: TextView
     private lateinit var btnGrantNotification: Button
@@ -169,15 +169,16 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             tvMusicTitle.text = track.title
             tvMusicArtist.text = track.artist
+            tvMusicSource.text = if (track.packageName.isNotEmpty()) getSourceAppName(track.packageName) else "🎵 Đang phát"
             if (track.albumArt != null) {
-                ivMusicArt.setImageBitmap(track.albumArt)
+                ivAlbumBg.setImageBitmap(track.albumArt)
             } else {
-                ivMusicArt.setImageResource(R.drawable.ic_music_note)
+                ivAlbumBg.setImageResource(R.drawable.ic_music_note)
             }
             if (track.isPlaying) {
-                btnMusicPlayPause.setImageResource(R.drawable.ic_pause)
+                btnMusicPlayPause.setImageResource(R.drawable.ic_pause_dark)
             } else {
-                btnMusicPlayPause.setImageResource(R.drawable.ic_play)
+                btnMusicPlayPause.setImageResource(R.drawable.ic_play_dark)
             }
         }
     }
@@ -187,6 +188,20 @@ class MainActivity : AppCompatActivity() {
             speedometerManager.setSpeedLimit(alert.speedLimit, alert.alertMessage)
         }
     }
+    private fun getSourceAppName(pkg: String): String {
+        return try {
+            val appInfo = packageManager.getApplicationInfo(pkg, 0)
+            "🎵 " + packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: Exception) {
+            when {
+                pkg.contains("spotify", ignoreCase = true) -> "🎵 Spotify"
+                pkg.contains("youtube.music", ignoreCase = true) -> "🎵 YouTube Music"
+                pkg.contains("zing", ignoreCase = true) -> "🎵 Zing MP3"
+                else -> "🎵 Đang phát"
+            }
+        }
+    }
+
 
     private val vietmapAccessibilityListener: (VietmapParsedData) -> Unit = { parsed ->
         runOnUiThread {
@@ -217,7 +232,7 @@ class MainActivity : AppCompatActivity() {
             if (state.alertText.isNotBlank()) {
                 tvVietmapAlert.text = state.alertText
             } else {
-                tvVietmapAlert.text = if (state.hasGpsFix) "GPS sẵn sàng. Vietmap đang theo dõi..." else "Đang tìm tín hiệu GPS..."
+                tvVietmapAlert.text = if (state.hasGpsFix) "GPS sẵn sàng • Chạm để mở Vietmap" else "Đang tìm GPS • Chạm để mở Vietmap"
             }
         }
     }
@@ -298,11 +313,11 @@ class MainActivity : AppCompatActivity() {
         tvSpeedLimitVal = findViewById(R.id.tvSpeedLimitVal)
         layoutSpeedLimitSign = findViewById(R.id.layoutSpeedLimitSign)
         tvVietmapAlert = findViewById(R.id.tvVietmapAlert)
-        btnQuickVietmap = findViewById(R.id.btnQuickVietmap)
 
         // Bind Music Widget
         widgetMusicContainer = findViewById(R.id.widgetMusicContainer)
-        ivMusicArt = findViewById(R.id.ivMusicArt)
+        ivAlbumBg = findViewById(R.id.ivAlbumBg)
+        tvMusicSource = findViewById(R.id.tvMusicSource)
         tvMusicTitle = findViewById(R.id.tvMusicTitle)
         tvMusicArtist = findViewById(R.id.tvMusicArtist)
         btnGrantNotification = findViewById(R.id.btnGrantNotification)
@@ -423,7 +438,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Quick Vietmap Launch
-        btnQuickVietmap.setOnClickListener {
+        widgetSpeedContainer.setOnClickListener {
             val launchIntent = packageManager.getLaunchIntentForPackage("vn.vietmap.live")
             if (launchIntent != null) {
                 startActivity(launchIntent)
