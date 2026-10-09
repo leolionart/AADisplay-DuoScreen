@@ -33,8 +33,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
     fun createThreeDisplays(
         topTexture: SurfaceTexture, topW: Int, topH: Int,
         bottomLeftTexture: SurfaceTexture, bLeftW: Int, bLeftH: Int,
-        bottomRightTexture: SurfaceTexture, bRightW: Int, bRightH: Int,
-        dpi: Int = 240
+        bottomRightTexture: SurfaceTexture, bRightW: Int, bRightH: Int
     ) {
         release()
 
@@ -45,39 +44,63 @@ class DuoVirtualDisplayManager(private val context: Context) {
         try {
             val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
 
-            // 1. Top Wide Panel
+            // 1. Top Wide Panel (Google Maps: 220 DPI for broad view)
             topVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-Top",
                 if (topW > 0) topW else 1080,
                 if (topH > 0) topH else 720,
-                dpi,
+                220,
                 topSurface,
                 flags
             )
             topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
 
-            // 2. Bottom Left Panel
+            // 2. Bottom Left Panel (Vietmap Live Speed Warning Widget: 140 DPI to make text, signs and icons big & readable!)
             bottomLeftVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-BottomLeft",
                 if (bLeftW > 0) bLeftW else 540,
                 if (bLeftH > 0) bLeftH else 720,
-                dpi,
+                140, // Low DPI = UI elements, speed limit circles and warning text scale up dramatically!
                 bottomLeftSurface,
                 flags
             )
             bottomLeftDisplayId = bottomLeftVirtualDisplay?.display?.displayId ?: -1
 
-            // 3. Bottom Right Panel
+            // 3. Bottom Right Panel (YouTube Music player: 160 DPI)
             bottomRightVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-BottomRight",
                 if (bRightW > 0) bRightW else 540,
                 if (bRightH > 0) bRightH else 720,
-                dpi,
+                160,
                 bottomRightSurface,
                 flags
             )
             bottomRightDisplayId = bottomRightVirtualDisplay?.display?.displayId ?: -1
 
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun createSingleTopDisplay(
+        topTexture: SurfaceTexture,
+        topW: Int,
+        topH: Int,
+        defaultDpi: Int = 220
+    ) {
+        release()
+        topSurface = Surface(topTexture)
+        try {
+            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
+            topVirtualDisplay = dm.createVirtualDisplay(
+                "DuoScreen-Top",
+                if (topW > 0) topW else 1080,
+                if (topH > 0) topH else 720,
+                defaultDpi,
+                topSurface,
+                flags
+            )
+            topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<automotiveApp>
-    <uses name="navigation" />
+<automotiveApp xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses name="template" />
+    <uses name="media" />
+    <uses name="service" />
+    <uses name="projection" />
 </automotiveApp>

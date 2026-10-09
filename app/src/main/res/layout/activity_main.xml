@@ -1,62 +1,527 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- 1. FULLSCREEN 3-PANEL DISPLAY CANVAS (1 WIDE TOP + 2 BOTTOM) -->
+    <!-- 1. FULLSCREEN 3-PANEL DISPLAY CANVAS WITH ADJUSTABLE SIZES -->
     <LinearLayout
         android:id="@+id/layoutCanvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- TOP PANEL (WIDE - 50% HEIGHT) -->
+        <!-- TOP PANEL (MAIN MAP) -->
         <FrameLayout
+            android:id="@+id/frameTop"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="55"
+            android:background="#1B1E26">
 
             <TextureView
                 android:id="@+id/tvTopDisplay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
+            <!-- Placeholder Container (Over TextureView, hidden when running) -->
+            <LinearLayout
+                android:id="@+id/placeholderTop"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:elevation="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="#1B1E26">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🗺️"
+                    android:textSize="32sp" />
+
+                <TextView
+                    android:id="@+id/tvPlaceholderTopTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Màn Trên: Bản đồ"
+                    android:textColor="#ECEFF4"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvPlaceholderTopSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Google Maps / Dẫn đường"
+                    android:textColor="#88C0D0"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvPlaceholderTopStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Chờ Shizuku sẵn sàng để khởi chạy..."
+                    android:textColor="#D8DEE9"
+                    android:textSize="11sp" />
+
+                <Button
+                    android:id="@+id/btnPlaceholderStart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="12dp"
+                    android:background="#00796B"
+                    android:text="🚀 Khởi chạy 3 ứng dụng"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp" />
+            </LinearLayout>
         </FrameLayout>
 
-        <!-- BOTTOM PANELS (50% HEIGHT - LEFT & RIGHT) -->
+        <!-- HORIZONTAL DIVIDER BAR (Kéo lên/xuống để đổi chiều cao Màn Trên & Màn Dưới) -->
+        <FrameLayout
+            android:id="@+id/dividerHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="18dp"
+            android:background="#2E3440">
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center"
+                android:background="#88C0D0" />
+        </FrameLayout>
+
+        <!-- BOTTOM PANELS (LEFT SPEED WIDGET & RIGHT MUSIC) -->
         <LinearLayout
+            android:id="@+id/layoutBottomRow"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="45"
             android:orientation="horizontal">
 
+            <!-- BOTTOM LEFT: VIETMAP SPEED WIDGET -->
             <FrameLayout
+                android:id="@+id/frameBottomLeft"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="45"
+                android:background="#161922">
 
                 <TextureView
                     android:id="@+id/tvBottomLeftDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+                <!-- Placeholder Container (Over TextureView, hidden when running) -->
+                <LinearLayout
+                    android:id="@+id/placeholderBottomLeft"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:elevation="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="#161922">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡"
+                        android:textSize="26sp" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomLeftTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Dưới Trái: Tốc độ"
+                        android:textColor="#ECEFF4"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomLeftSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Vietmap Live / Cảnh báo"
+                        android:textColor="#A3BE8C"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomLeftStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Đang chờ khởi động..."
+                        android:textColor="#D8DEE9"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- NATIVE WIDGET (MODE LITE): SPEEDOMETER & VIETMAP ALERT -->
+                <LinearLayout
+                    android:id="@+id/widgetSpeedContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_cockpit_card"
+                    android:padding="8dp"
+                    android:elevation="6dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <!-- GPS Speedometer -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tvSpeedVal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#ECEFF4"
+                                android:textSize="40sp"
+                                android:textStyle="bold"
+                                android:includeFontPadding="false" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="km/h (GPS)"
+                                android:textColor="#88C0D0"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Circular Speed Limit Sign -->
+                        <FrameLayout
+                            android:id="@+id/layoutSpeedLimitSign"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_speed_limit_sign">
+
+                            <TextView
+                                android:id="@+id/tvSpeedLimitVal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="--"
+                                android:textColor="#1A1D26"
+                                android:textSize="17sp"
+                                android:textStyle="bold" />
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <!-- Vietmap Alert / Status Banner -->
+                    <LinearLayout
+                        android:id="@+id/layoutVietmapBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#2E3440"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🛡️"
+                            android:textSize="12sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <TextView
+                            android:id="@+id/tvVietmapAlert"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Vietmap: Đang theo dõi..."
+                            android:textColor="#D8DEE9"
+                            android:textSize="11sp"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever" />
+
+                        <TextView
+                            android:id="@+id/btnQuickVietmap"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mở Vietmap"
+                            android:textColor="#88C0D0"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:paddingStart="6dp"
+                            android:paddingEnd="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
             </FrameLayout>
 
+            <!-- VERTICAL DIVIDER BAR (Kéo trái/phải để đổi chiều rộng Trái & Phải) -->
             <FrameLayout
+                android:id="@+id/dividerVertical"
+                android:layout_width="18dp"
+                android:layout_height="match_parent"
+                android:background="#2E3440">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="#88C0D0" />
+            </FrameLayout>
+
+            <!-- BOTTOM RIGHT: MUSIC PLAYER / APP -->
+            <FrameLayout
+                android:id="@+id/frameBottomRight"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="55"
+                android:background="#161922">
 
                 <TextureView
                     android:id="@+id/tvBottomRightDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+                <!-- Placeholder Container (Over TextureView, hidden when running) -->
+                <LinearLayout
+                    android:id="@+id/placeholderBottomRight"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:elevation="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="#161922">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎵"
+                        android:textSize="26sp" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomRightTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Dưới Phải: Nhạc / Giải trí"
+                        android:textColor="#ECEFF4"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomRightSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="YouTube Music / Spotify"
+                        android:textColor="#B48EAD"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderBottomRightStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Đang chờ khởi động..."
+                        android:textColor="#D8DEE9"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- NATIVE WIDGET (MODE LITE): MUSIC PLAYER CONTROLLER -->
+                <LinearLayout
+                    android:id="@+id/widgetMusicContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_cockpit_card"
+                    android:padding="8dp"
+                    android:elevation="6dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- Album Art -->
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="10dp"
+                            android:background="#2E3440">
+
+                            <ImageView
+                                android:id="@+id/ivMusicArt"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_music_note" />
+                        </FrameLayout>
+
+                        <!-- Track Info -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvMusicTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Chưa phát nhạc"
+                                android:textColor="#ECEFF4"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:singleLine="true"
+                                android:ellipsize="marquee"
+                                android:marqueeRepeatLimit="marquee_forever" />
+
+                            <TextView
+                                android:id="@+id/tvMusicArtist"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Mở Spotify / YouTube Music"
+                                android:textColor="#88C0D0"
+                                android:textSize="11sp"
+                                android:singleLine="true"
+                                android:ellipsize="end" />
+
+                            <Button
+                                android:id="@+id/btnGrantNotification"
+                                android:layout_width="wrap_content"
+                                android:layout_height="24dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_btn_grant"
+                                android:text="Cấp quyền đọc nhạc"
+                                android:textColor="#FFFFFF"
+                                android:textSize="9sp"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:visibility="gone" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Playback Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp">
+
+                        <ImageButton
+                            android:id="@+id/btnMusicPrev"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_media_control_btn"
+                            android:src="@drawable/ic_skip_previous"
+                            android:contentDescription="Previous Track" />
+
+                        <ImageButton
+                            android:id="@+id/btnMusicPlayPause"
+                            android:layout_width="46dp"
+                            android:layout_height="46dp"
+                            android:layout_marginStart="14dp"
+                            android:layout_marginEnd="14dp"
+                            android:background="@drawable/bg_media_play_btn"
+                            android:src="@drawable/ic_play"
+                            android:contentDescription="Play/Pause" />
+
+                        <ImageButton
+                            android:id="@+id/btnMusicNext"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_media_control_btn"
+                            android:src="@drawable/ic_skip_next"
+                            android:contentDescription="Next Track" />
+                    </LinearLayout>
+                </LinearLayout>
             </FrameLayout>
 
         </LinearLayout>
 
     </LinearLayout>
+    <!-- SHIZUKU STATUS BADGE -->
+    <LinearLayout
+        android:id="@+id/layoutShizukuStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:background="@drawable/bg_shizuku_status"
+        android:elevation="14dp">
 
-    <!-- 2. FLOATING BUBBLE / MENU TRIGGER (Góc dưới bên phải, mờ dần, bấm để bật menu) -->
+        <View
+            android:id="@+id/viewShizukuDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_status_dot" />
+
+        <TextView
+            android:id="@+id/tvShizukuStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đang kiểm tra Shizuku..."
+            android:textColor="#ECEFF4"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnGrantShizuku"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_btn_grant"
+            android:text="Cấp quyền"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- 2. FLOATING BUBBLE / MENU TRIGGER -->
     <TextView
         android:id="@+id/btnFloatingTrigger"
         android:layout_width="44dp"
@@ -70,13 +535,12 @@
         android:gravity="center"
         android:elevation="10dp" />
 
-    <!-- 3. SLIDE-OUT / POPUP CONTROL DRAWER OVERLAY (Ẩn mặc định, tự đóng sau 5 giây không dùng) -->
+    <!-- 3. SLIDE-OUT / POPUP CONTROL DRAWER OVERLAY -->
     <LinearLayout
         android:id="@+id/panelControlOverlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:background="#E61A1A1A"
+        android:layout_height="match_parent"
+        android:background="#F2121212"
         android:orientation="vertical"
         android:padding="16dp"
         android:elevation="12dp"
@@ -93,59 +557,245 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Cài đặt bố cục &amp; Ứng dụng"
+                android:text="Chọn ứng dụng cho từng vị trí"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnCloseMenu"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="40dp"
                 android:text="Đóng ✕"
-                android:textSize="12sp" />
+                android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Display Mode Selector (Mode 3 vs Mode Nhẹ) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#21262D"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chế độ hiển thị màn hình:"
+                android:textColor="#88C0D0"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Mode nhẹ: 1 Bản đồ + 2 Widget (Tốc độ Vietmap &amp; Nhạc) mượt, nhẹ máy."
+                android:textColor="#D8DEE9"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+
+                <Button
+                    android:id="@+id/btnModeLite"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:background="#00796B"
+                    android:text="⚡ Mode Nhẹ (Map+Widget)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnMode3Panel"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:background="#424242"
+                    android:text="🚀 Mode 3: Đa nhiệm 3 App"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Launch Mode & Controls Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#21262D"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/swAutoStart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tự động chạy khi mở app"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Nếu tắt, ứng dụng sẽ chỉ chạy khi bạn bấm nút khởi động."
+                android:textColor="#8B949E"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+
+                <Button
+                    android:id="@+id/btnMenuStartDisplays"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="#00796B"
+                    android:text="🚀 Khởi chạy ngay"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnMenuStopDisplays"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="#B71C1C"
+                    android:text="⏹ Dừng hiển thị"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Target Slot Selector -->
         <TextView
-            android:id="@+id/tvStatus"
+            android:id="@+id/tvSlotLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Shizuku: Sẵn sàng"
-            android:textColor="#4CAF50"
-            android:textSize="12sp"
-            android:layout_marginBottom="8dp" />
+            android:text="1. Bấm chọn ô cần đổi ứng dụng:"
+            android:textColor="#80CBC4"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
 
             <Button
-                android:id="@+id/btnLaunchTop"
+                android:id="@+id/btnSlotTop"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Đổi Trên (Map)"
+                android:text="Màn Trên"
                 android:textSize="12sp"
                 android:layout_marginEnd="4dp" />
 
             <Button
-                android:id="@+id/btnLaunchBottomLeft"
+                android:id="@+id/btnSlotBottomLeft"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Đổi Trái (Media)"
+                android:text="Dưới Trái"
                 android:textSize="12sp"
                 android:layout_marginEnd="4dp" />
 
             <Button
-                android:id="@+id/btnLaunchBottomRight"
+                android:id="@+id/btnSlotBottomRight"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Đổi Phải (Web)"
+                android:text="Dưới Phải"
                 android:textSize="12sp" />
         </LinearLayout>
+
+        <!-- Shortcut Bar for Instant Presets -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2. Ứng dụng phổ biến (Gán nhanh 1 chạm):"
+            android:textColor="#80CBC4"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btnPresetMaps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Google Maps"
+                android:textSize="11sp"
+                android:layout_marginEnd="2dp" />
+
+            <Button
+                android:id="@+id/btnPresetVietmap"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Vietmap Live"
+                android:textSize="11sp"
+                android:layout_marginEnd="2dp" />
+
+            <Button
+                android:id="@+id/btnPresetMusic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="YT Music"
+                android:textSize="11sp"
+                android:layout_marginEnd="2dp" />
+
+            <Button
+                android:id="@+id/btnPresetFermata"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Fermata Auto"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvAppListLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3. Hoặc chọn từ tất cả ứng dụng trong máy:"
+            android:textColor="#B0BEC5"
+            android:textSize="13sp"
+            android:layout_marginBottom="4dp" />
+
+        <!-- App Picker Full List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAppList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#1E1E1E"
+            android:padding="4dp" />
 
     </LinearLayout>
 

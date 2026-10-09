@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Rounded Background -->
+    <path
+        android:fillColor="#0D47A1"
+        android:pathData="M8,4h32c2.21,0 4,1.79 4,4v32c0,2.21 -1.79,4 -4,4H8c-2.21,0 -4,-1.79 -4,-4V8c0,-2.21 1.79,-4 4,-4z" />
+    <!-- Display Monitor Frame -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,8h28c1.66,0 3,1.34 3,3v18c0,1.66 -1.34,3 -3,3H10c-1.66,0 -3,-1.34 -3,-3V11c0,-1.66 1.34,-3 3,-3z" />
+    <!-- Screen Inner Display: Split 1 (Left 60%) -->
+    <path
+        android:fillColor="#00B0FF"
+        android:pathData="M11,11h15v15H11z" />
+    <!-- Screen Inner Display: Split 2 (Right 40%) -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M28,11h9v15h-9z" />
+    <!-- Car Silhouette / Base -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M37,34H11c-1.1,0 -2,0.9 -2,2v3c0,0.55 0.45,1 1,1h2c0.55,0 1,-0.45 1,-1v-1h22v1c0,0.55 0.45,1 1,1h2c0.55,0 1,-0.45 1,-1v-3c0,-1.1 -0.9,-2 -2,-2z" />
+    <!-- Car Headlights -->
+    <path
+        android:fillColor="#FFEA00"
+        android:pathData="M13,36h4v2h-4z M31,36h4v2h-4z" />
+</vector>

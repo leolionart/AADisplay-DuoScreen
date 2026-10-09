@@ -1,11 +1,17 @@
 package com.cva.duoscreen.shizuku
 
 import android.content.pm.PackageManager
+import android.os.Looper
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 object ShizukuHelper {
+    private val executor: ExecutorService = Executors.newCachedThreadPool()
+
 
     fun isShizukuAvailable(): Boolean {
         return try {
@@ -34,7 +40,10 @@ object ShizukuHelper {
         }
     }
 
-    fun executeShell(cmd: String): String {
+    private fun runShellInternal(cmd: String): String {
+        if (!hasPermission()) {
+            return "Error: Shizuku permission not granted"
+        }
         return try {
             val method = Shizuku::class.java.getDeclaredMethod(
                 "newProcess",
@@ -57,11 +66,31 @@ object ShizukuHelper {
         }
     }
 
-    fun launchAppOnDisplay(packageName: String, displayId: Int) {
-        executeShell("am start --display $displayId $(cmd package resolve-activity --brief $packageName | tail -n 1)")
+    fun executeShell(cmd: String): String {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            return runShellInternal(cmd)
+        }
+        return try {
+            executor.submit<String> { runShellInternal(cmd) }.get(3, TimeUnit.SECONDS)
+        } catch (e: Throwable) {
+            "Error: ${e.message}"
+        }
+    }
+
+    fun executeShellAsync(cmd: String, callback: ((String) -> Unit)? = null) {
+        executor.execute {
+            val result = runShellInternal(cmd)
+            callback?.invoke(result)
+        }
+    }
+
+    fun launchAppOnDisplay(packageName: String, displayId: Int, callback: ((String) -> Unit)? = null) {
+        executeShellAsync("am start --display $displayId $(cmd package resolve-activity --brief $packageName | tail -n 1)", callback)
     }
 
     fun injectTap(displayId: Int, x: Float, y: Float) {
-        executeShell("input -d $displayId tap ${x.toInt()} ${y.toInt()}")
+        executor.execute {
+            runShellInternal("input -d $displayId tap ${x.toInt()} ${y.toInt()}")
+        }
     }
 }
