@@ -2,6 +2,8 @@ name: Build APK & Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -15,6 +17,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -31,14 +35,35 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
-      - name: Rename APK for release
+      - name: Prepare APK for Release
         run: |
           mkdir -p release-artifacts
-          cp app/build/outputs/apk/release/app-release.apk release-artifacts/DuoScreen-AA-${{ github.ref_name }}.apk 2>/dev/null || cp app/build/outputs/apk/release/app-release.apk release-artifacts/DuoScreen-AA-latest.apk
+          if [ -n "${{ github.ref_name }}" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            cp app/build/outputs/apk/release/app-release.apk "release-artifacts/DuoScreen-AA-${{ github.ref_name }}.apk"
+          else
+            cp app/build/outputs/apk/release/app-release.apk release-artifacts/DuoScreen-AA-latest.apk
+          fi
 
-      - name: Upload Release Asset
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DuoScreen-AA-APK
+          path: release-artifacts/*.apk
+          retention-days: 14
+
+      - name: Publish or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && format('DuoScreen AA {0}', github.ref_name) || 'DuoScreen AA (Latest Auto-Build)' }}
+          body: |
+            ## 🚀 DuoScreen AA - Bản dựng tự động từ nhánh `main`
+
+            - **Tải file APK trực tiếp**: Bấm vào file `.apk` trong mục **Assets** bên dưới để tải về và cài đặt trên điện thoại.
+            - **Hỗ trợ**: Yêu cầu quyền **Shizuku** (Wireless ADB) để điều khiển màn hình và ứng dụng.
+            - **Tính năng nổi bật**:
+              - ⚡ **Mode Nhẹ (Khuyên dùng)**: 1 Bản đồ dẫn đường lớn + 2 Widget native (Đồng hồ tốc độ & cảnh báo Vietmap Live, Trình điều khiển nhạc tiện lợi).
+              - 🚀 **Mode 3**: Đa nhiệm 3 ứng dụng song song trên 3 màn hình ảo độc lập.
+              - 🚗 Tích hợp hiển thị giao diện trên Android Auto (`DuoMainScreen`).
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
           files: release-artifacts/*.apk
-          generate_release_notes: true

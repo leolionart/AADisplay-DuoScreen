@@ -1,13 +1,14 @@
 package com.cva.duoscreen.car
 
+import android.app.ActivityOptions
 import android.content.Context
+import android.content.Intent
 import android.graphics.SurfaceTexture
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.view.MotionEvent
 import android.view.Surface
 import com.cva.duoscreen.shizuku.ShizukuHelper
-
 class DuoVirtualDisplayManager(private val context: Context) {
 
     private val dm = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -42,8 +43,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
         bottomRightSurface = Surface(bottomRightTexture)
 
         try {
-            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
-
+            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
             // 1. Top Wide Panel (Google Maps: 220 DPI for broad view)
             topVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-Top",
@@ -91,7 +91,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
         release()
         topSurface = Surface(topTexture)
         try {
-            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION or DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY
+            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
             topVirtualDisplay = dm.createVirtualDisplay(
                 "DuoScreen-Top",
                 if (topW > 0) topW else 1080,
@@ -103,6 +103,35 @@ class DuoVirtualDisplayManager(private val context: Context) {
             topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun createCarDisplay(
+        carSurface: Surface,
+        width: Int,
+        height: Int,
+        dpi: Int = 160
+    ) {
+        release()
+        try {
+            val flags = DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
+            topVirtualDisplay = dm.createVirtualDisplay(
+                "DuoScreen-Car",
+                if (width > 0) width else 1280,
+                if (height > 0) height else 720,
+                if (dpi > 0) dpi else 160,
+                carSurface,
+                flags
+            )
+            topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun handleCarTap(x: Float, y: Float) {
+        if (topDisplayId != -1) {
+            ShizukuHelper.injectTap(topDisplayId, x, y)
         }
     }
 
@@ -120,22 +149,34 @@ class DuoVirtualDisplayManager(private val context: Context) {
         }
     }
 
-    fun launchTopApp(packageName: String) {
-        if (topDisplayId != -1) {
-            ShizukuHelper.launchAppOnDisplay(packageName, topDisplayId)
+    fun launchApp(packageName: String, displayId: Int) {
+        if (displayId == -1) return
+        try {
+            val pm = context.packageManager
+            val intent = pm.getLaunchIntentForPackage(packageName)
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                val options = ActivityOptions.makeBasic()
+                options.setLaunchDisplayId(displayId)
+                context.startActivity(intent, options.toBundle())
+                return
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        ShizukuHelper.launchAppOnDisplay(packageName, displayId)
+    }
+
+    fun launchTopApp(packageName: String) {
+        launchApp(packageName, topDisplayId)
     }
 
     fun launchBottomLeftApp(packageName: String) {
-        if (bottomLeftDisplayId != -1) {
-            ShizukuHelper.launchAppOnDisplay(packageName, bottomLeftDisplayId)
-        }
+        launchApp(packageName, bottomLeftDisplayId)
     }
 
     fun launchBottomRightApp(packageName: String) {
-        if (bottomRightDisplayId != -1) {
-            ShizukuHelper.launchAppOnDisplay(packageName, bottomRightDisplayId)
-        }
+        launchApp(packageName, bottomRightDisplayId)
     }
 
     fun release() {
