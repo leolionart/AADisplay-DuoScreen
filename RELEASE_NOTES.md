@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 22:28 +07
+
+Generated before push from commits:
+
+- `c7a4690` fix: launch with windowingMode 1 for edge-to-edge maps and filter out system/battery text from speed limit
+
 ## Unreleased - 2026-10-09 22:24 +07
 
 Generated before push from commits:
