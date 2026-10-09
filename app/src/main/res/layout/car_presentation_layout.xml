@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/carLayoutCanvas"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000">
+
+    <!-- TOP PANEL: GOOGLE MAPS -->
+    <FrameLayout
+        android:id="@+id/carFrameTop"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="65"
+        android:background="#1B1E26">
+
+        <TextureView
+            android:id="@+id/carTvTop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- DIVIDER -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#00D2D3" />
+
+    <!-- BOTTOM ROW: VIETMAP LIVE & YT MUSIC -->
+    <LinearLayout
+        android:id="@+id/carLayoutBottomRow"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="35"
+        android:orientation="horizontal"
+        android:background="#10131A">
+
+        <!-- BOTTOM LEFT: VIETMAP LIVE -->
+        <FrameLayout
+            android:id="@+id/carFrameBottomLeft"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="45"
+            android:background="#161922">
+
+            <TextureView
+                android:id="@+id/carTvBottomLeft"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <!-- VERTICAL DIVIDER -->
+        <FrameLayout
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="#00D2D3" />
+
+        <!-- BOTTOM RIGHT: YT MUSIC -->
+        <FrameLayout
+            android:id="@+id/carFrameBottomRight"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="55"
+            android:background="#161922">
+
+            <TextureView
+                android:id="@+id/carTvBottomRight"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

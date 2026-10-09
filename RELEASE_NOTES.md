@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 06:40 +07
+
+Generated before push from commits:
+
+- `feat(car)`: render multi-display Presentation on Android Auto surface and auto-launch Google Maps, Vietmap Live, and YouTube Music
+
 ## Unreleased - 2026-10-09 22:28 +07
 
 Generated before push from commits:
