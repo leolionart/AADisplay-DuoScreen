@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:33 +07
+
+Generated before push from commits:
+
+- `57edaf6` fix(display): fix aspect ratio, remove letterboxing, and stay on car smart cockpit
+
 ## Unreleased - 2026-10-09 21:28 +07
 
 Generated before push from commits:
