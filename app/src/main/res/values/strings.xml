@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DuoScreen AA</string>
+    <string name="accessibility_service_desc">Dịch vụ hỗ trợ đọc thông tin giới hạn tốc độ và biển báo từ bong bóng nổi Vietmap Live để hiển thị lên màn hình Android Auto.</string>
 </resources>

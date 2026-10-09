@@ -626,6 +626,62 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Vietmap Bubble Accessibility Configuration Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#21262D"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛡️ Đọc Bong bóng nổi Vietmap Live:"
+                android:textColor="#88C0D0"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvAccessibilityStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="Trạng thái: Đang kiểm tra..."
+                android:textColor="#D8DEE9"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <Button
+                    android:id="@+id/btnEnableAccessibilityShizuku"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:background="#00796B"
+                    android:text="⚡ Bật quyền 1-chạm (Shizuku)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnDumpVietmapTree"
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:background="#4C566A"
+                    android:text="🔍 Soi Bong bóng Vietmap"
+                    android:textColor="#ECEFF4"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Launch Mode & Controls Section -->
         <LinearLayout
             android:layout_width="match_parent"

@@ -39,6 +39,8 @@ import com.cva.duoscreen.service.DuoNotificationService
 import com.cva.duoscreen.service.MediaTrackInfo
 import com.cva.duoscreen.service.VietmapAlertInfo
 import com.cva.duoscreen.shizuku.ShizukuHelper
+import com.cva.duoscreen.service.DuoAccessibilityService
+import com.cva.duoscreen.service.VietmapParsedData
 import rikka.shizuku.Shizuku
 
 class MainActivity : AppCompatActivity() {
@@ -118,6 +120,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnMusicNext: ImageButton
 
     private var isDisplaysRunning = false
+
+    // Mode Lite Native Widgets: Accessibility Vietmap Scraper
+    private lateinit var tvAccessibilityStatus: TextView
+    private lateinit var btnEnableAccessibilityShizuku: Button
+    private lateinit var btnDumpVietmapTree: Button
     private var hasAutoCreated = false
 
     private val statusHandler = Handler(Looper.getMainLooper())
@@ -178,6 +185,14 @@ class MainActivity : AppCompatActivity() {
     private val vietmapAlertListener: (VietmapAlertInfo) -> Unit = { alert ->
         runOnUiThread {
             speedometerManager.setSpeedLimit(alert.speedLimit, alert.alertMessage)
+        }
+    }
+
+    private val vietmapAccessibilityListener: (VietmapParsedData) -> Unit = { parsed ->
+        runOnUiThread {
+            if (parsed.speedLimit != null || parsed.alertText.isNotBlank()) {
+                speedometerManager.setSpeedLimit(parsed.speedLimit, parsed.alertText)
+            }
         }
     }
 
@@ -294,6 +309,38 @@ class MainActivity : AppCompatActivity() {
         btnMusicPrev = findViewById(R.id.btnMusicPrev)
         btnMusicPlayPause = findViewById(R.id.btnMusicPlayPause)
         btnMusicNext = findViewById(R.id.btnMusicNext)
+
+        // Bind Accessibility Vietmap Scraper Views
+        tvAccessibilityStatus = findViewById(R.id.tvAccessibilityStatus)
+        btnEnableAccessibilityShizuku = findViewById(R.id.btnEnableAccessibilityShizuku)
+        btnDumpVietmapTree = findViewById(R.id.btnDumpVietmapTree)
+
+        btnEnableAccessibilityShizuku.setOnClickListener {
+            btnEnableAccessibilityShizuku.isEnabled = false
+            btnEnableAccessibilityShizuku.text = "Đang kích hoạt..."
+            DuoAccessibilityService.enableViaShizuku(this) { success ->
+                runOnUiThread {
+                    btnEnableAccessibilityShizuku.isEnabled = true
+                    btnEnableAccessibilityShizuku.text = "⚡ Bật quyền 1-chạm (Shizuku)"
+                    if (success) {
+                        Toast.makeText(this, "Đã bật quyền Trợ năng đọc Vietmap thành công!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Không thể bật tự động. Vui lòng cấp quyền trong Cài đặt Trợ năng.", Toast.LENGTH_LONG).show()
+                    }
+                    updateAccessibilityStatusUi()
+                }
+            }
+        }
+
+        btnDumpVietmapTree.setOnClickListener {
+            val nodes = DuoAccessibilityService.dumpCurrentVietmapTree()
+            val message = nodes.joinToString("\n\n")
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Cấu trúc Bong bóng Vietmap")
+                .setMessage(message)
+                .setPositiveButton("Đóng", null)
+                .show()
+        }
 
         val btnPresetMaps = findViewById<Button>(R.id.btnPresetMaps)
         val btnPresetVietmap = findViewById<Button>(R.id.btnPresetVietmap)
@@ -489,6 +536,7 @@ class MainActivity : AppCompatActivity() {
         DuoNotificationService.addMediaListener(mediaListener)
         DuoNotificationService.addVietmapListener(vietmapAlertListener)
         speedometerManager.addListener(speedStateListener)
+        DuoAccessibilityService.addListener(vietmapAccessibilityListener)
 
         // Restore saved Display Mode (default: MODE_LITE)
         val savedModeStr = prefs.getString("pref_display_mode", DisplayMode.MODE_LITE.name)
@@ -506,6 +554,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         checkAndRequestShizukuPermission()
         checkNotificationPermission()
+        updateAccessibilityStatusUi()
         if (currentMode == DisplayMode.MODE_LITE) {
             checkLocationPermission()
             speedometerManager.start()
@@ -533,6 +582,29 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
                 2001
             )
+        }
+    }
+
+    private fun updateAccessibilityStatusUi() {
+        if (!::tvAccessibilityStatus.isInitialized) return
+        val isRunning = DuoAccessibilityService.isRunning()
+        val isEnabled = DuoAccessibilityService.isAccessibilityEnabled(this)
+        when {
+            isRunning -> {
+                tvAccessibilityStatus.text = "Trạng thái: ✅ Đang hoạt động (Sẵn sàng đọc bong bóng Vietmap)"
+                tvAccessibilityStatus.setTextColor(Color.parseColor("#A3BE8C"))
+                btnEnableAccessibilityShizuku.visibility = View.GONE
+            }
+            isEnabled -> {
+                tvAccessibilityStatus.text = "Trạng thái: ⏳ Đã cấp quyền (Đang chờ dịch vụ kết nối...)"
+                tvAccessibilityStatus.setTextColor(Color.parseColor("#EBCB8B"))
+                btnEnableAccessibilityShizuku.visibility = View.VISIBLE
+            }
+            else -> {
+                tvAccessibilityStatus.text = "Trạng thái: ⚠️ Chưa bật quyền Trợ năng đọc bong bóng"
+                tvAccessibilityStatus.setTextColor(Color.parseColor("#D08770"))
+                btnEnableAccessibilityShizuku.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -1029,6 +1101,7 @@ class MainActivity : AppCompatActivity() {
         speedometerManager.removeListener(speedStateListener)
         DuoNotificationService.removeMediaListener(mediaListener)
         DuoNotificationService.removeVietmapListener(vietmapAlertListener)
+        DuoAccessibilityService.removeListener(vietmapAccessibilityListener)
 
         Shizuku.removeBinderReceivedListener(binderReceivedListener)
         Shizuku.removeBinderDeadListener(binderDeadListener)

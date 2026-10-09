@@ -22,6 +22,8 @@ import com.cva.duoscreen.manager.SpeedometerManager
 import com.cva.duoscreen.service.DuoNotificationService
 import com.cva.duoscreen.service.MediaTrackInfo
 import com.cva.duoscreen.service.VietmapAlertInfo
+import com.cva.duoscreen.service.DuoAccessibilityService
+import com.cva.duoscreen.service.VietmapParsedData
 import com.cva.duoscreen.shizuku.ShizukuHelper
 
 class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallback {
@@ -49,6 +51,13 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         currentVietmapAlert = alert
         speedometerManager.setSpeedLimit(alert.speedLimit, alert.alertMessage)
         render()
+    }
+
+    private val accessibilityListener: (VietmapParsedData) -> Unit = { parsed ->
+        if (parsed.speedLimit != null || parsed.alertText.isNotBlank()) {
+            speedometerManager.setSpeedLimit(parsed.speedLimit, parsed.alertText)
+            render()
+        }
     }
 
     init {
@@ -99,6 +108,7 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         speedometerManager.start()
         DuoNotificationService.addMediaListener(mediaListener)
         DuoNotificationService.addVietmapListener(vietmapListener)
+        DuoAccessibilityService.addListener(accessibilityListener)
 
         render()
     }
@@ -417,5 +427,6 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         speedometerManager.stop()
         DuoNotificationService.removeMediaListener(mediaListener)
         DuoNotificationService.removeVietmapListener(vietmapListener)
+        DuoAccessibilityService.removeListener(accessibilityListener)
     }
 }
