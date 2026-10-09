@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 21:16 +07
+
+Generated before push from commits:
+
+- `ef90e99` ci: use preinstalled Android SDK on GitHub Actions runner
+
 ## Unreleased - 2026-10-09 21:15 +07
 
 Generated before push from commits:
