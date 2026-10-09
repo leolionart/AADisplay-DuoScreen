@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 06:31 +07
+
+Generated before push from commits:
+
+- `bcbb235` feat(car): support Mode Lite (1 map + 2 native widgets) & Mode 3 with auto-launch
+
 ## Unreleased - 2026-10-10 06:40 +07
 
 Generated before push from commits:
