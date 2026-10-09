@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-09 22:00 +07
+
+Generated before push from commits:
+
+- `4b99e2d` feat: add AccessibilityService to scrape speed limit from Vietmap Live bubble
+
 ## Unreleased - 2026-10-09 21:33 +07
 
 Generated before push from commits:
