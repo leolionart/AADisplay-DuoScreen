@@ -89,6 +89,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
             bottomRightDisplayId = bottomRightVirtualDisplay?.display?.displayId ?: -1
 
         } catch (e: Exception) {
+            release()
             e.printStackTrace()
         }
     }
@@ -116,6 +117,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
             )
             topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
         } catch (e: Exception) {
+            release()
             e.printStackTrace()
         }
     }
@@ -149,6 +151,7 @@ class DuoVirtualDisplayManager(private val context: Context) {
             )
             topDisplayId = topVirtualDisplay?.display?.displayId ?: -1
         } catch (e: Exception) {
+            release()
             e.printStackTrace()
         }
     }
@@ -160,16 +163,17 @@ class DuoVirtualDisplayManager(private val context: Context) {
     }
 
     fun handleTouch(displayId: Int, event: MotionEvent, viewW: Int, viewH: Int, displayW: Int, displayH: Int) {
-        if (displayId == -1 || viewW == 0 || viewH == 0) return
+        if (displayId < 0 || viewW <= 0 || viewH <= 0 || displayW <= 0 || displayH <= 0) return
+        if (!event.x.isFinite() || !event.y.isFinite()) return
         val scaleX = displayW.toFloat() / viewW.toFloat()
         val scaleY = displayH.toFloat() / viewH.toFloat()
-        val targetX = event.x * scaleX
-        val targetY = event.y * scaleY
+        val targetX = (event.x * scaleX).coerceIn(0f, displayW - 1f)
+        val targetY = (event.y * scaleY).coerceIn(0f, displayH - 1f)
 
-        when (event.action) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP -> {
-                ShizukuHelper.injectTap(displayId, targetX, targetY)
-            }
+        // `input tap` already represents a complete click; emitting it for both
+        // DOWN and UP turns one user click into two clicks on the target app.
+        if (event.actionMasked == MotionEvent.ACTION_UP) {
+            ShizukuHelper.injectTap(displayId, targetX, targetY)
         }
     }
 

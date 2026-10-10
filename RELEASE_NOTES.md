@@ -1,5 +1,16 @@
 # Release Notes
 
+## Unreleased - 2026-10-10
+
+### Android Auto hardening
+- Hardened virtual-display cleanup after partial creation failures.
+- Prevented duplicate taps caused by injecting `input tap` on both touch-down and touch-up.
+- Added package-name/display/coordinate validation before privileged shell operations.
+- Added shell timeout and main-thread callback delivery for asynchronous launch results.
+- Made release signing explicit: production keystore values come from environment variables; debug release signing is opt-in for local smoke tests only.
+- Documented KingInstaller/fake-vending installation and the remaining requirement for real head-unit validation.
+- Android Auto host validation now derives SHA-256 allowlist entries only for known Google host packages installed on the device; unknown callers are rejected. Deployment still requires verifying the target host package/certificate combination.
+
 ## Unreleased - 2026-10-10 08:36 +07
 
 Generated before push from commits:

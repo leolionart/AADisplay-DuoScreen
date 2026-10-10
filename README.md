@@ -25,3 +25,18 @@ export ANDROID_HOME=$HOME/android-sdk
 gradle assembleDebug
 ```
 File APK đầu ra tại: `app/build/outputs/apk/debug/app-debug.apk`.
+
+### 3.1. Android Auto verification and installation
+
+Build success alone does not prove compatibility with a vehicle head unit. Verify the APK on the target Android phone and Android Auto host, including reconnecting the car surface, changing surface size, launching each configured app, and stopping/restarting displays.
+
+For head-unit testing, install through the Play Store installer identity required by Android Auto instead of plain `adb install`:
+
+```bash
+adb -s <device_ip>:5555 push app/build/outputs/apk/release/app-release.apk /data/local/tmp/app-release.apk
+adb -s <device_ip>:5555 shell pm install -i com.android.vending -r /data/local/tmp/app-release.apk
+```
+
+The project does not contain a production signing key. Release signing is supplied through `RELEASE_KEYSTORE_PATH`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD`. `ALLOW_DEBUG_RELEASE_SIGNING=true` is for local/device smoke testing only and MUST NOT be used for published releases.
+
+Known limitation: this checkout has no Android Auto head-unit or Desktop Head Unit smoke test in CI, so real-car behavior remains deployment-dependent.

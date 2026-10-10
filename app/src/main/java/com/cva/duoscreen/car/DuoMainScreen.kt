@@ -31,6 +31,12 @@ import com.cva.duoscreen.shizuku.ShizukuHelper
 class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallback {
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val dashboardPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var renderPending = false
+    private val renderRunnable = Runnable {
+        renderPending = false
+        renderNow()
+    }
 
     private var currentSurface: Surface? = null
     private var surfaceWidth: Int = 699
@@ -139,8 +145,15 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
         render()
     }
 
-    @Synchronized
     private fun render() {
+        if (renderPending) return
+        renderPending = true
+        mainHandler.removeCallbacks(renderRunnable)
+        mainHandler.post(renderRunnable)
+    }
+
+    @Synchronized
+    private fun renderNow() {
         val surface = currentSurface ?: return
         if (!surface.isValid) return
 
@@ -164,12 +177,12 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
             }
         }
     }
-
     private fun drawDashboard(canvas: Canvas, w: Int, h: Int) {
         // 1. Background (Deep navy space)
         canvas.drawColor(Color.parseColor("#0F141C"))
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-
+        val paint = dashboardPaint
+        paint.reset()
+        paint.isAntiAlias = true
         // 2. Header Status
         val headerH = 36f
         paint.color = Color.parseColor("#1B2230")
@@ -331,6 +344,8 @@ class DuoMainScreen(carContext: CarContext) : Screen(carContext), SurfaceCallbac
     }
 
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) {
+        mainHandler.removeCallbacks(renderRunnable)
+        renderPending = false
         currentSurface = null
         speedometerManager.removeListener(speedListener)
         speedometerManager.stop()

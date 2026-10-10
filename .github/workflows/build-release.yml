@@ -29,17 +29,31 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      - name: Build Release APK (signed release or local smoke artifact)
+        env:
+          RELEASE_KEYSTORE_PATH: ${{ secrets.RELEASE_KEYSTORE_PATH }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease -PallowDebugReleaseSigning=${{ !startsWith(github.ref, 'refs/tags/') }}
 
       - name: Prepare APK for Release
         run: |
           mkdir -p release-artifacts
-          if [ -n "${{ github.ref_name }}" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            cp app/build/outputs/apk/release/app-release.apk "release-artifacts/DuoScreen-AA-${{ github.ref_name }}.apk"
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            apk_path=app/build/outputs/apk/release/app-release.apk
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "Tagged releases require configured release signing secrets."
+            exit 1
           else
-            cp app/build/outputs/apk/release/app-release.apk release-artifacts/DuoScreen-AA-latest.apk
+            apk_path=app/build/outputs/apk/release/app-release-unsigned.apk
           fi
+          if [ -n "${{ github.ref_name }}" ] && [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            cp "$apk_path" "release-artifacts/DuoScreen-AA-${{ github.ref_name }}.apk"
+          else
+            cp "$apk_path" release-artifacts/DuoScreen-AA-latest.apk
+          fi
+          echo "Unsigned APKs require signing before production installation; configure release secrets for signed artifacts."
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
