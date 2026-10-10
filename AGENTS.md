@@ -56,6 +56,17 @@ Output APK:
 `app/build/outputs/apk/debug/app-debug.apk`
 
 ---
+### 3.1. Android Auto Installation Rule (CRITICAL)
+To ensure Android Auto (`Gearhead`) recognizes and displays the application without being blocked as an unknown source, all APK deployments to the test device MUST follow the KingInstaller / fake-vending workflow:
+```bash
+# 1. Push APK to device temporary storage
+adb -s <device_ip>:5555 push app/build/outputs/apk/release/app-release.apk /data/local/tmp/app-release.apk
+
+# 2. Install via package manager with Google Play Store installer package identity (-i com.android.vending)
+adb -s <device_ip>:5555 shell pm install -i com.android.vending -r /data/local/tmp/app-release.apk
+```
+*Do not use plain `adb install` or direct adb streaming install for testing on vehicle head units.*
+
 
 ## 4. Key Rules & Invariants
 
