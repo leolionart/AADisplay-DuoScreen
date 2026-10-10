@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 08:18 +07
+
+Generated before push from commits:
+
+- `98442fc` feat(car): stream live Google Maps directly to Canvas with native GPS & Media widgets
+
 ## Unreleased - 2026-10-10 08:11 +07
 
 Generated before push from commits:
