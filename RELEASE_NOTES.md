@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 08:36 +07
+
+Generated before push from commits:
+
+- `bcff3b8` feat(car): implement direct ActionStrip navigation buttons for Google Maps, Vietmap Live & YT Music
+
 ## Unreleased - 2026-10-10 08:18 +07
 
 Generated before push from commits:
