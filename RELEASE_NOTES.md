@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 16:02 +07
+
+Generated before push from commits:
+
+- `3fca77c` fix: handle empty release signing secrets
+
 ## Unreleased - 2026-10-10
 
 ### Android Auto hardening
