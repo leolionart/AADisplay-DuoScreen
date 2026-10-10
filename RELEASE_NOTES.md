@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased - 2026-10-10 08:11 +07
+
+Generated before push from commits:
+
+- `7de0593` docs: record KingInstaller fake-vending installation rule in AGENTS.md
+
 ## Unreleased - 2026-10-10 06:31 +07
 
 Generated before push from commits:
