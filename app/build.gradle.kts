@@ -3,10 +3,10 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val releaseKeystorePath = providers.environmentVariable("RELEASE_KEYSTORE_PATH").orNull
-val releaseKeystorePassword = providers.environmentVariable("RELEASE_KEYSTORE_PASSWORD").orNull
-val releaseKeyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS").orNull
-val releaseKeyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull
+val releaseKeystorePath = providers.environmentVariable("RELEASE_KEYSTORE_PATH").orNull?.takeIf { it.isNotBlank() }
+val releaseKeystorePassword = providers.environmentVariable("RELEASE_KEYSTORE_PASSWORD").orNull?.takeIf { it.isNotBlank() }
+val releaseKeyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS").orNull?.takeIf { it.isNotBlank() }
+val releaseKeyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD").orNull?.takeIf { it.isNotBlank() }
 val allowDebugReleaseSigning = providers.gradleProperty("allowDebugReleaseSigning").orNull == "true" ||
     providers.environmentVariable("ALLOW_DEBUG_RELEASE_SIGNING").orNull == "true"
 android {
