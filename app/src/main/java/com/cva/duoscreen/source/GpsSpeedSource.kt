@@ -1,4 +1,4 @@
-package com.cva.duoscreen.manager
+package com.cva.duoscreen.source
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,37 +7,19 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.roundToInt
 
-data class SpeedState(
-    val speedKmh: Int = 0,
-    val speedLimit: Int? = null,
-    val isOverSpeed: Boolean = false,
-    val alertText: String = "",
-    val hasGpsFix: Boolean = false
-)
+object GpsSpeedSource {
+    private var locationManager: LocationManager? = null
+    private var isTracking = false
 
-class SpeedometerManager(private val context: Context) {
-
-    private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val listeners = CopyOnWriteArrayList<(SpeedState) -> Unit>()
-    private val mainHandler = Handler(Looper.getMainLooper())
-
-    private var currentSpeed: Int = 0
-    private var currentLimit: Int? = null
-    private var currentAlert: String = ""
-    private var hasGpsFix: Boolean = false
     private var lastLocation: Location? = null
     private var lastLocationTime: Long = 0L
-    private var isTracking = false
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            hasGpsFix = true
             val now = System.currentTimeMillis()
 
             val speedMs = if (location.hasSpeed()) {
@@ -56,60 +38,21 @@ class SpeedometerManager(private val context: Context) {
             lastLocationTime = now
 
             val kmh = (speedMs * 3.6f).roundToInt().coerceAtLeast(0)
-            currentSpeed = kmh
-            emitState()
+            SpeedAlertRepository.updateGpsData(speedKmh = kmh, hasGps = true)
         }
 
         @Deprecated("Deprecated in Java")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         override fun onProviderEnabled(provider: String) {
-            hasGpsFix = true
+            SpeedAlertRepository.updateGpsData(speedKmh = SpeedAlertRepository.current.speedKmh, hasGps = true)
         }
         override fun onProviderDisabled(provider: String) {
-            hasGpsFix = false
-            currentSpeed = 0
-            emitState()
-        }
-    }
-
-    fun addListener(listener: (SpeedState) -> Unit) {
-        listeners.add(listener)
-        listener(getCurrentState())
-    }
-
-    fun removeListener(listener: (SpeedState) -> Unit) {
-        listeners.remove(listener)
-    }
-
-    fun setSpeedLimit(limit: Int?, alert: String) {
-        currentLimit = limit
-        currentAlert = alert
-        emitState()
-    }
-
-    fun getCurrentState(): SpeedState {
-        val limit = currentLimit
-        val isOver = limit != null && limit > 0 && currentSpeed > limit
-        return SpeedState(
-            speedKmh = currentSpeed,
-            speedLimit = limit,
-            isOverSpeed = isOver,
-            alertText = currentAlert,
-            hasGpsFix = hasGpsFix
-        )
-    }
-
-    private fun emitState() {
-        val state = getCurrentState()
-        mainHandler.post {
-            for (listener in listeners) {
-                listener(state)
-            }
+            SpeedAlertRepository.updateGpsData(speedKmh = 0, hasGps = false)
         }
     }
 
     @SuppressLint("MissingPermission")
-    fun start() {
+    fun start(context: Context) {
         if (isTracking) return
         val hasFine = ContextCompat.checkSelfPermission(
             context,
@@ -124,9 +67,11 @@ class SpeedometerManager(private val context: Context) {
         if (!hasFine && !hasCoarse) return
 
         try {
+            locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             isTracking = true
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(
+            
+            if (locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true) {
+                locationManager?.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     500L,
                     0f,
@@ -134,8 +79,8 @@ class SpeedometerManager(private val context: Context) {
                     Looper.getMainLooper()
                 )
             }
-            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(
+            if (locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true) {
+                locationManager?.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER,
                     1000L,
                     0f,
@@ -144,6 +89,10 @@ class SpeedometerManager(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
+            locationManager = null
+            isTracking = false
+            lastLocation = null
+            lastLocationTime = 0L
             e.printStackTrace()
         }
     }
@@ -151,13 +100,14 @@ class SpeedometerManager(private val context: Context) {
     fun stop() {
         if (!isTracking) return
         try {
-            locationManager.removeUpdates(locationListener)
-        } catch (e: Exception) {
+            locationManager?.removeUpdates(locationListener)
+        } catch (_: Exception) {
             // ignore
         }
+        locationManager = null
         isTracking = false
-        hasGpsFix = false
-        currentSpeed = 0
-        emitState()
+        lastLocation = null
+        lastLocationTime = 0L
+        SpeedAlertRepository.updateGpsData(speedKmh = 0, hasGps = false)
     }
 }

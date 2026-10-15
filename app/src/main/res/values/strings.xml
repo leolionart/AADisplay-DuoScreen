@@ -1,4 +1,21 @@
 <resources>
     <string name="app_name">DuoScreen AA</string>
     <string name="accessibility_service_desc">Dịch vụ hỗ trợ đọc thông tin giới hạn tốc độ và biển báo từ bong bóng nổi Vietmap Live để hiển thị lên màn hình Android Auto.</string>
+
+    <!-- Permission & Status -->
+    <string name="status_granted">Đã cấp quyền</string>
+    <string name="status_not_granted">Chưa cấp quyền</string>
+    <string name="status_running">Đang chạy</string>
+    <string name="status_stopped">Chưa bật</string>
+    <string name="status_checking">Đang kiểm tra…</string>
+    <string name="action_grant">Cấp quyền</string>
+    <string name="action_enable">Bật</string>
+    <string name="action_check">Kiểm tra kết nối</string>
+    <string name="action_select">Chọn</string>
+    <string name="action_close">Đóng</string>
+
+    <!-- App Picker Titles -->
+    <string name="select_map_app">Chọn ứng dụng Bản đồ</string>
+    <string name="select_vietmap_app">Chọn ứng dụng Cảnh báo (Vietmap Live)</string>
+    <string name="select_music_app">Chọn ứng dụng Nghe nhạc</string>
 </resources>

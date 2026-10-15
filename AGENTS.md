@@ -9,11 +9,12 @@ Context and operational guidelines for AI agents working on **AADisplay-DuoScree
 **DuoScreen AA** is an open-source Android Auto application that enables multi-display / split-screen on vehicle head units using **Shizuku (Wireless ADB / ADB)** without requiring device root.
 
 ### Core Modules:
-- `com.cva.duoscreen.MainActivity`: Android phone UI. Checks Shizuku service status, requests permissions, displays virtual display previews (`TextureView`), and provides quick launch controls.
-- `com.cva.duoscreen.shizuku.ShizukuHelper`: IPC helper interfacing with Shizuku Binder. Executes privileged shell commands (`newProcess`), launches target apps onto virtual displays (`am start --display <id> ...`), and injects touch events (`input -d <id> tap <x> <y>`).
-- `com.cva.duoscreen.car.DuoCarAppService`: Android Auto `CarAppService` entry point registered with `androidx.car.app.category.NAVIGATION`. Configures `HostValidator.ALLOW_ALL_HOSTS_VALIDATOR` and hosts the car session.
-- `com.cva.duoscreen.car.DuoMainScreen`: Android Auto `NavigationTemplate` screen. Sets up the surface callback, action strip (quick app launchers), and handles car lifecycle transitions.
-- `com.cva.duoscreen.car.DuoVirtualDisplayManager`: Manages lifecycle of Android `VirtualDisplay` instances created via `DisplayManager`. Maps touch events from the host view to virtual display coordinates and executes shell taps.
+- `com.cva.duoscreen.ui.MainActivity`: Android phone UI. Checks Shizuku service status, requests permissions, displays virtual display previews (`TextureView`), and provides Android Box / quick launch controls.
+- `com.cva.duoscreen.core.ShizukuShell`: IPC helper interfacing with Shizuku Binder. Executes privileged shell commands (`newProcess`), launches target apps onto virtual displays, and manages shell operations.
+- `com.cva.duoscreen.car.DuoCarAppService`: Android Auto `CarAppService` entry point registered with `androidx.car.app.category.NAVIGATION`. Hosts car session with runtime host allowlisting.
+- `com.cva.duoscreen.car.CarScreen`: Android Auto screen managing navigation surface callbacks, speed/warning bubbles, and cockpit UI.
+- `com.cva.duoscreen.panels.VirtualDisplayController`: Manages lifecycle of Android `VirtualDisplay` and `ImageReader` instances.
+- `com.cva.duoscreen.box.VehicleBoxManager`: Manages Android Box features (Wi-Fi hotspot reconnection, lockscreen disable, keep-awake, dialog auto-approval).
 
 ---
 

@@ -1,4 +1,4 @@
-package com.cva.duoscreen.shizuku
+package com.cva.duoscreen.core
 
 import android.content.pm.PackageManager
 import android.os.Handler
@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 private val mainHandler = Handler(Looper.getMainLooper())
 
-object ShizukuHelper {
+object ShizukuShell {
     private val executor: ExecutorService = Executors.newCachedThreadPool()
 
 
@@ -41,35 +41,75 @@ object ShizukuHelper {
         }
     }
 
-    private fun runShellInternal(cmd: String): String {
-        if (!hasPermission()) {
-            return "Error: Shizuku permission not granted"
-        }
+    fun isRootAvailable(): Boolean {
         return try {
-            val method = Shizuku::class.java.getDeclaredMethod(
-                "newProcess",
-                Array<String>::class.java,
-                Array<String>::class.java,
-                String::class.java
-            )
-            method.isAccessible = true
-            val process = method.invoke(null, arrayOf("sh", "-c", cmd), null, null) as java.lang.Process
+            val p = Runtime.getRuntime().exec(arrayOf("su", "-c", "id"))
+            val reader = p.inputStream.bufferedReader()
+            val out = reader.readLine() ?: ""
+            p.waitFor(1, TimeUnit.SECONDS)
+            p.destroy()
+            out.contains("uid=0")
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    fun isPrivilegedAvailable(): Boolean = hasPermission() || isRootAvailable()
+
+    private fun runRootInternal(cmd: String): String {
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", cmd))
             val outputFuture = executor.submit<String> {
                 process.inputStream.bufferedReader().use { it.readText().trim() }
             }
-            if (!process.waitFor(3, TimeUnit.SECONDS)) {
+            if (!process.waitFor(4, TimeUnit.SECONDS)) {
                 process.destroy()
                 outputFuture.cancel(true)
-                return "Error: shell command timed out"
+                return "Error: root command timed out"
             }
             val output = outputFuture.get(1, TimeUnit.SECONDS)
             if (process.exitValue() != 0 && output.isEmpty()) {
-                "Error: shell command failed with exit code ${process.exitValue()}"
+                "Error: root command failed with exit code ${process.exitValue()}"
             } else {
                 output
             }
         } catch (e: Throwable) {
             "Error: ${e.message}"
+        }
+    }
+
+    private fun runShellInternal(cmd: String): String {
+        return if (hasPermission()) {
+            try {
+                val method = Shizuku::class.java.getDeclaredMethod(
+                    "newProcess",
+                    Array<String>::class.java,
+                    Array<String>::class.java,
+                    String::class.java
+                )
+                method.isAccessible = true
+                val process = method.invoke(null, arrayOf("sh", "-c", cmd), null, null) as java.lang.Process
+                val outputFuture = executor.submit<String> {
+                    process.inputStream.bufferedReader().use { it.readText().trim() }
+                }
+                if (!process.waitFor(4, TimeUnit.SECONDS)) {
+                    process.destroy()
+                    outputFuture.cancel(true)
+                    return "Error: shell command timed out"
+                }
+                val output = outputFuture.get(1, TimeUnit.SECONDS)
+                if (process.exitValue() != 0 && output.isEmpty()) {
+                    "Error: shell command failed with exit code ${process.exitValue()}"
+                } else {
+                    output
+                }
+            } catch (e: Throwable) {
+                // Fallback to root on Shizuku failure
+                runRootInternal(cmd)
+            }
+        } else {
+            // Shizuku not permitted, try root
+            runRootInternal(cmd)
         }
     }
 

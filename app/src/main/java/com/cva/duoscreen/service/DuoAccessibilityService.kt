@@ -11,17 +11,8 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
-import com.cva.duoscreen.shizuku.ShizukuHelper
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.regex.Pattern
-
-data class VietmapParsedData(
-    val speedLimit: Int? = null,
-    val currentSpeed: Int? = null,
-    val alertText: String = "",
-    val rawTexts: List<String> = emptyList(),
-    val timestamp: Long = System.currentTimeMillis()
-)
+import com.cva.duoscreen.core.ShizukuShell
+import com.cva.duoscreen.source.VietmapSource
 
 class DuoAccessibilityService : AccessibilityService() {
 
@@ -30,11 +21,7 @@ class DuoAccessibilityService : AccessibilityService() {
         private const val VIETMAP_PKG = "vn.vietmap.live"
 
         private var instance: DuoAccessibilityService? = null
-        private val listeners = CopyOnWriteArrayList<(VietmapParsedData) -> Unit>()
         private val mainHandler = Handler(Looper.getMainLooper())
-
-        var latestData: VietmapParsedData = VietmapParsedData()
-            private set
 
         fun isRunning(): Boolean = instance != null
 
@@ -48,14 +35,14 @@ class DuoAccessibilityService : AccessibilityService() {
         }
 
         fun enableViaShizuku(context: Context, onComplete: (Boolean) -> Unit) {
-            if (!ShizukuHelper.isShizukuAvailable() || !ShizukuHelper.hasPermission()) {
+            if (!ShizukuShell.isShizukuAvailable() || !ShizukuShell.hasPermission()) {
                 onComplete(false)
                 return
             }
 
             Thread {
                 val serviceComponent = ComponentName(context, DuoAccessibilityService::class.java).flattenToString()
-                val currentServices = ShizukuHelper.executeShell("settings get secure enabled_accessibility_services").trim()
+                val currentServices = ShizukuShell.executeShell("settings get secure enabled_accessibility_services").trim()
 
                 val newServices = if (currentServices.isEmpty() || currentServices == "null") {
                     serviceComponent
@@ -65,8 +52,8 @@ class DuoAccessibilityService : AccessibilityService() {
                     currentServices
                 }
 
-                ShizukuHelper.executeShell("settings put secure enabled_accessibility_services $newServices")
-                ShizukuHelper.executeShell("settings put secure accessibility_enabled 1")
+                ShizukuShell.executeShell("settings put secure enabled_accessibility_services $newServices")
+                ShizukuShell.executeShell("settings put secure accessibility_enabled 1")
 
                 mainHandler.postDelayed({
                     val enabled = isAccessibilityEnabled(context)
@@ -75,23 +62,11 @@ class DuoAccessibilityService : AccessibilityService() {
             }.start()
         }
 
-        fun addListener(listener: (VietmapParsedData) -> Unit) {
-            listeners.add(listener)
-            listener(latestData)
-        }
-
-        fun removeListener(listener: (VietmapParsedData) -> Unit) {
-            listeners.remove(listener)
-        }
-
         fun dumpCurrentVietmapTree(): List<String> {
             val service = instance ?: return listOf("AccessibilityService chưa chạy!")
             return service.dumpAllVietmapNodes()
         }
     }
-
-    private val speedRegex = Pattern.compile("(?i)(?:giới hạn|tốc độ|limit)?\\s*(\\d{2,3})\\s*(?:km/?h)?")
-    private val validLimits = setOf(20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120)
 
     private val periodicRunnable = object : Runnable {
         override fun run() {
@@ -119,9 +94,74 @@ class DuoAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         val pkg = event.packageName?.toString() ?: ""
-        if (pkg != VIETMAP_PKG) return
+        if (pkg == VIETMAP_PKG) {
+            parseAllInteractiveWindows()
+            return
+        }
+        handleAndroidBoxAutomations(event)
+    }
 
-        parseAllInteractiveWindows()
+    private fun handleAndroidBoxAutomations(event: AccessibilityEvent) {
+        val store = com.cva.duoscreen.ui.SettingsStore.get(this)
+        if (!store.isBoxAutoUnlockEnabled) return
+
+        val pkg = event.packageName?.toString() ?: ""
+        val targetPackages = setOf(
+            "com.google.android.projection.gearhead",
+            "com.google.android.gms",
+            "com.android.systemui",
+            "android",
+            "com.android.settings",
+            "com.google.android.packageinstaller",
+            "com.android.packageinstaller"
+        )
+
+        if (pkg !in targetPackages) return
+
+        val root = rootInActiveWindow ?: event.source ?: return
+        try {
+            findAndClickAutoApprovals(root)
+        } catch (e: Exception) {
+            // ignore
+        }
+    }
+
+    private fun findAndClickAutoApprovals(node: AccessibilityNodeInfo?) {
+        if (node == null) return
+
+        val text = node.text?.toString() ?: ""
+        val desc = node.contentDescription?.toString() ?: ""
+        val lower = "$text $desc".lowercase().trim()
+
+        // Auto-unlock if "Mở khóa để tiếp tục" is shown
+        if (lower.contains("mở khóa để tiếp tục") || lower.contains("unlock to continue") || lower.contains("mở khóa điện thoại")) {
+            Log.i(TAG, "DuoAccessibility: Phát hiện nhắc mở khóa, kích hoạt dismiss keyguard...")
+            com.cva.duoscreen.box.VehicleBoxManager.wakeAndDismissKeyguard()
+        }
+
+        val isConfirmButton = lower == "ok" ||
+                lower == "tiếp tục" || lower == "continue" ||
+                lower == "cho phép" || lower == "allow" ||
+                lower == "đồng ý" || lower == "agree" || lower == "i agree" ||
+                lower == "bắt đầu ngay" || lower == "start now" ||
+                lower == "luôn cho phép" || lower == "always allow" ||
+                lower == "luôn luôn" || lower == "always" ||
+                lower == "bỏ qua" || lower == "skip" ||
+                lower == "đóng" || lower == "close" ||
+                lower == "hoàn tất" || lower == "done" ||
+                lower == "xác nhận" || lower == "confirm"
+
+        if (isConfirmButton && (node.isClickable || node.parent?.isClickable == true)) {
+            Log.i(TAG, "DuoAccessibility: Tự động click phê duyệt/bỏ qua dialog xe: '$text'")
+            if (!node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
+                node.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            }
+            return
+        }
+
+        for (i in 0 until node.childCount) {
+            findAndClickAutoApprovals(node.getChild(i))
+        }
     }
 
     override fun onInterrupt() {
@@ -133,6 +173,7 @@ class DuoAccessibilityService : AccessibilityService() {
         mainHandler.removeCallbacks(periodicRunnable)
         instance = null
     }
+
     fun parseAllInteractiveWindows() {
         val collectedTexts = mutableListOf<String>()
         val collectedNodesInfo = mutableListOf<String>()
@@ -148,16 +189,13 @@ class DuoAccessibilityService : AccessibilityService() {
                     if (pkg == "com.android.systemui" || pkg == "com.cva.duoscreen") continue
 
                     if (pkg.contains("vietmap", ignoreCase = true)) {
-                        Log.d(TAG, "FOUND VIETMAP WINDOW! ID=${window.id}, type=${window.type}, layer=${window.layer}")
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
-                        Log.d(TAG, "Vietmap nodes extracted: $collectedNodesInfo")
                     }
                 }
             } else {
                 rootInActiveWindow?.let { root ->
                     val pkg = root.packageName?.toString() ?: ""
                     if (pkg.contains("vietmap", ignoreCase = true)) {
-                        Log.d(TAG, "FOUND VIETMAP in rootInActiveWindow!")
                         extractNodeTexts(root, collectedTexts, collectedNodesInfo)
                     }
                 }
@@ -167,8 +205,7 @@ class DuoAccessibilityService : AccessibilityService() {
         }
 
         if (collectedTexts.isNotEmpty()) {
-            Log.d(TAG, "Nodes collected from overlays: $collectedTexts")
-            processParsedTexts(collectedTexts)
+            VietmapSource.processParsedTexts(collectedTexts)
         }
     }
 
@@ -195,76 +232,6 @@ class DuoAccessibilityService : AccessibilityService() {
 
         for (i in 0 until node.childCount) {
             extractNodeTexts(node.getChild(i), outTexts, outDebugList)
-        }
-    }
-
-    private fun processParsedTexts(texts: List<String>) {
-        var detectedLimit: Int? = null
-        var detectedSpeed: Int? = null
-        val alerts = mutableListOf<String>()
-
-        for (t in texts) {
-            val lower = t.lowercase()
-            if (lower.contains("%") || lower.contains("pin") || lower.contains("sạc") ||
-                lower.contains("wifi") || lower.contains("bluetooth") || lower.contains("usb") ||
-                lower.contains("thông báo") || lower.contains("hệ thống")) {
-                continue
-            }
-
-            val num = t.toIntOrNull()
-            if (num != null) {
-                // If it's a standard speed limit number (e.g. 40, 50, 60, 70, 80, 90, 100, 120...)
-                if (validLimits.contains(num)) {
-                    detectedLimit = num
-                } else if (num in 0..199) {
-                    detectedSpeed = num
-                }
-                continue
-            }
-
-            // Check pattern e.g. "60 km/h" or "giới hạn 80"
-            val matcher = speedRegex.matcher(t)
-            if (matcher.find()) {
-                val foundNum = matcher.group(1)?.toIntOrNull()
-                if (foundNum != null && validLimits.contains(foundNum)) {
-                    detectedLimit = foundNum
-                }
-            }
-
-            // Check alert keywords
-            if (lower.contains("camera") || lower.contains("phạt nguội") ||
-                lower.contains("dân cư") || lower.contains("giới hạn") ||
-                lower.contains("vượt") || lower.contains("tốc độ") ||
-                lower.contains("m") || lower.contains("km")
-            ) {
-                alerts.add(t)
-            }
-        }
-
-        val limitToUse = detectedLimit ?: latestData.speedLimit
-        val alertString = if (alerts.isNotEmpty()) {
-            alerts.distinct().joinToString(" • ")
-        } else {
-            latestData.alertText
-        }
-
-        if (limitToUse != latestData.speedLimit || alertString != latestData.alertText || detectedSpeed != latestData.currentSpeed) {
-            latestData = VietmapParsedData(
-                speedLimit = limitToUse,
-                currentSpeed = detectedSpeed ?: latestData.currentSpeed,
-                alertText = alertString,
-                rawTexts = texts,
-                timestamp = System.currentTimeMillis()
-            )
-            notifyListeners()
-        }
-    }
-
-    private fun notifyListeners() {
-        mainHandler.post {
-            for (listener in listeners) {
-                listener(latestData)
-            }
         }
     }
 

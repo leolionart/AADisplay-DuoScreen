@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#1E232D"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvPickerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn ứng dụng"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/etSearchApp"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#2B3240"
+        android:hint="Tìm kiếm ứng dụng..."
+        android:textColorHint="#64748B"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:singleLine="true"
+        android:layout_marginBottom="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPickerAppList"
+        android:layout_width="match_parent"
+        android:layout_height="320dp" />
+
+    <Button
+        android:id="@+id/btnClosePicker"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:text="Đóng"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#334155"
+        android:layout_marginTop="12dp" />
+
+</LinearLayout>

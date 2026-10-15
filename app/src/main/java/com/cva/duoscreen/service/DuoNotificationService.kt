@@ -13,8 +13,8 @@ import android.os.Looper
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.cva.duoscreen.source.VietmapSource
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.regex.Pattern
 
 data class MediaTrackInfo(
     val title: String = "Chưa phát nhạc",
@@ -24,23 +24,13 @@ data class MediaTrackInfo(
     val packageName: String = ""
 )
 
-data class VietmapAlertInfo(
-    val speedLimit: Int? = null,
-    val alertMessage: String = "",
-    val hasAlert: Boolean = false,
-    val timestamp: Long = 0L
-)
-
 class DuoNotificationService : NotificationListenerService() {
 
     companion object {
         private var instance: DuoNotificationService? = null
         private val mediaListeners = CopyOnWriteArrayList<(MediaTrackInfo) -> Unit>()
-        private val vietmapListeners = CopyOnWriteArrayList<(VietmapAlertInfo) -> Unit>()
 
         var currentTrack: MediaTrackInfo = MediaTrackInfo()
-            private set
-        var currentVietmapAlert: VietmapAlertInfo = VietmapAlertInfo()
             private set
 
         fun isPermissionGranted(context: Context): Boolean {
@@ -66,15 +56,6 @@ class DuoNotificationService : NotificationListenerService() {
 
         fun removeMediaListener(listener: (MediaTrackInfo) -> Unit) {
             mediaListeners.remove(listener)
-        }
-
-        fun addVietmapListener(listener: (VietmapAlertInfo) -> Unit) {
-            vietmapListeners.add(listener)
-            listener(currentVietmapAlert)
-        }
-
-        fun removeVietmapListener(listener: (VietmapAlertInfo) -> Unit) {
-            vietmapListeners.remove(listener)
         }
 
         fun playOrPause() {
@@ -215,16 +196,17 @@ class DuoNotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
-        if (sbn.packageName.contains("vietmap", ignoreCase = true)) {
-            parseVietmapNotification(sbn)
+        val pkg = sbn.packageName ?: ""
+        if (pkg.contains("vietmap", ignoreCase = true)) {
+            VietmapSource.parseVietmapNotification(sbn)
         }
+        checkAndCancelDeprecationAlert(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (sbn == null) return
         if (sbn.packageName.contains("vietmap", ignoreCase = true)) {
-            currentVietmapAlert = VietmapAlertInfo()
-            notifyVietmapChanged()
+            VietmapSource.clearNotificationData()
         }
     }
 
@@ -232,56 +214,42 @@ class DuoNotificationService : NotificationListenerService() {
         try {
             val notifications = activeNotifications ?: return
             for (sbn in notifications) {
-                if (sbn.packageName.contains("vietmap", ignoreCase = true)) {
-                    parseVietmapNotification(sbn)
-                    break
+                val pkg = sbn.packageName ?: ""
+                if (pkg.contains("vietmap", ignoreCase = true)) {
+                    VietmapSource.parseVietmapNotification(sbn)
                 }
+                checkAndCancelDeprecationAlert(sbn)
             }
         } catch (e: Exception) {
             // ignore
         }
     }
 
-    private fun parseVietmapNotification(sbn: StatusBarNotification) {
-        val extras = sbn.notification.extras ?: return
-        val title = extras.getCharSequence("android.title")?.toString() ?: ""
-        val text = extras.getCharSequence("android.text")?.toString() ?: ""
-        val bigText = extras.getCharSequence("android.bigText")?.toString() ?: ""
-        val fullContent = "$title $text $bigText".trim()
+    private fun checkAndCancelDeprecationAlert(sbn: StatusBarNotification) {
+        try {
+            val pkg = sbn.packageName ?: ""
+            if (pkg == "com.google.android.projection.gearhead" || pkg == "com.google.android.gms") {
+                val channelId = sbn.notification?.channelId ?: ""
+                val extras = sbn.notification?.extras
+                val title = extras?.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString() ?: ""
+                val text = extras?.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString() ?: ""
+                val bigText = extras?.getCharSequence(android.app.Notification.EXTRA_BIG_TEXT)?.toString() ?: ""
+                val combined = "$title $text $bigText".lowercase()
 
-        var limit: Int? = null
-        // Extract speed limits like "60km/h", "giới hạn: 80", "tốc độ 50", etc.
-        val speedPattern = Pattern.compile("(?i)(?:giới hạn|tốc độ|limit)?\\s*(\\d{2,3})\\s*(?:km/?h)?")
-        val matcher = speedPattern.matcher(fullContent)
-        while (matcher.find()) {
-            val numStr = matcher.group(1)
-            val num = numStr?.toIntOrNull()
-            if (num != null && num in 20..140) {
-                limit = num
-                break
+                val isDeprecation = channelId == "gearhead_alerts" ||
+                        combined.contains("không được hỗ trợ") ||
+                        combined.contains("ngừng hoạt động") ||
+                        combined.contains("cập nhật") ||
+                        combined.contains("unsupported") ||
+                        combined.contains("deprecated") ||
+                        combined.contains("no longer supported")
+
+                if (isDeprecation) {
+                    cancelNotification(sbn.key)
+                }
             }
-        }
-
-        // Clean up alert text
-        var alert = fullContent
-        if (alert.length > 80) {
-            alert = alert.substring(0, 80) + "..."
-        }
-
-        currentVietmapAlert = VietmapAlertInfo(
-            speedLimit = limit,
-            alertMessage = if (alert.isNotBlank()) alert else "Vietmap Live đang giám sát",
-            hasAlert = true,
-            timestamp = System.currentTimeMillis()
-        )
-        notifyVietmapChanged()
-    }
-
-    private fun notifyVietmapChanged() {
-        mainHandler.post {
-            for (listener in vietmapListeners) {
-                listener(currentVietmapAlert)
-            }
+        } catch (e: Exception) {
+            // ignore
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.cva.duoscreen.adapter
+package com.cva.duoscreen.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,7 @@ import com.cva.duoscreen.R
 import com.cva.duoscreen.model.AppInfo
 
 class AppListAdapter(
-    private val apps: List<AppInfo>,
+    private var apps: List<AppInfo>,
     private val onAppSelected: (AppInfo) -> Unit
 ) : RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
@@ -41,4 +41,9 @@ class AppListAdapter(
     }
 
     override fun getItemCount(): Int = apps.size
+
+    fun updateData(newApps: List<AppInfo>) {
+        apps = newApps
+        notifyDataSetChanged()
+    }
 }

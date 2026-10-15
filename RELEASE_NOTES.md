@@ -1,5 +1,24 @@
 # Release Notes
 
+## Unreleased - 2026-10-11
+
+### Android Box Mode & Aggressive Wi-Fi Hotspot Reconnect
+- **Tự động mở khóa & Chế độ Android Box chuyên dụng**: Tự động vô hiệu hóa lockscreen (`lockscreen.disabled = 1`, `locksettings set-disabled true`), duy trì sáng màn hình khi cắm sạc/USB xe (`stay_on_while_plugged_in = 7`), tự động đánh thức màn hình (`KEYCODE_WAKEUP` / `wm dismiss-keyguard`).
+- **Tự động phê duyệt quyền & kết nối Android Auto**: `DuoAccessibilityService` tự động nhận diện và nhấn phê duyệt các hộp thoại ghép nối ("Cho phép", "Bắt đầu ngay", "Tiếp tục", "Đồng ý", "OK") mà không cần tài xế phải chạm vào điện thoại.
+- **Triệt tiêu hoàn toàn cảnh báo ngưng hỗ trợ Android Auto**: Khóa kênh thông báo `gearhead_alerts` (`mImportance = 0`), bổ sung bộ lọc trong `DuoNotificationService` tự động hủy mọi thông báo cảnh báo "không được hỗ trợ / ngừng hoạt động", và `DuoAccessibilityService` tự động bấm bỏ qua các popup cảnh báo.
+- **Hotspot Reconnect Watchdog quyết liệt**: Thêm `VehicleBoxManager` và `VehicleBoxService` chạy ngầm 24/7, tự động nạp cấu hình mạng ("AI Phone") vào `WifiConfigStore.xml` và `WifiNetworkSuggestion`, tắt throttling quét Wi-Fi (`wifi_scan_throttle_enabled = 0`, `wifi_sleep_policy = 2`), quét và ép kết nối lại liên tục ngay khi tài xế bật điểm phát sóng trên điện thoại chính.
+- **Giao diện cấu hình Android Box trực quan**: Thêm thẻ điều khiển chuyên dụng trong `MainActivity` cho phép nhập SSID/mật khẩu Hotspot, công tắc kích hoạt kết nối quyết liệt, xem trạng thái kết nối trực tiếp và nút tối ưu hệ thống 1-chạm.
+
+### Android Auto cockpit UI
+- Redesigned the Android Auto canvas with the phone app's dark cockpit palette, teal accents, rounded cards, and compact status hierarchy.
+- Replaced oversized instructional content with readable navigation, speed/Vietmap, and media information panels while preserving the existing ActionStrip launch actions.
+
+### Supervisor verification
+- Added an immediate black-canvas clear and native speed bubble render in `CarScreen.onSurfaceAvailable` before the first Google Maps `ImageReader` frame.
+- Hardened `VirtualDisplayController` creation/teardown and `ImageReader` listener cleanup; synchronized shared GPS-source ownership across phone and car clients.
+- Replaced `ALLOW_ALL_HOSTS_VALIDATOR` with runtime SHA-256 allowlisting for installed Google Android Auto host packages.
+- Verified `bash tools/aa/build.sh`, fake-vending installation, DHU startup/forwarding, and final screenshots under `/tmp/aa-supervisor-verify-final` (`phone-1791689581.png`, `dhu-1791689581.png`).
+
 ## Unreleased - 2026-10-10 16:02 +07
 
 Generated before push from commits:
